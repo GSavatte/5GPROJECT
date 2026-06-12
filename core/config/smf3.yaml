@@ -1,0 +1,41 @@
+logger:
+  file:
+    path: /var/log/open5gs/smf3.log
+
+global:
+
+smf:
+  sbi:
+    server:
+      - address: smf3.open5gs.org
+        port: 80
+    client:
+      nrf:
+        - uri: http://nrf.open5gs.org:80
+  pfcp:
+    server:
+      - address: smf3.open5gs.org
+    client:
+      upf:
+        - address: upf3.open5gs.org
+  gtpu:
+    server:
+      - address: smf3.open5gs.org
+  session:
+    - subnet: 10.47.0.0/16
+      gateway: 10.47.0.1
+  dns:
+    - 8.8.8.8
+    - 8.8.4.4
+  mtu: 1400
+  info:
+    - s_nssai:
+      - sst: 3
+        sd: 000001
+        dnn:
+          - internet
+      tai:
+        - plmn_id:
+            mcc: 208
+            mnc: 01
+          tac: 1

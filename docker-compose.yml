@@ -177,6 +177,23 @@ services:
     volumes:
       - ./logs:/var/log/open5gs
 
+  smf3:
+    container_name: smf3
+    image: "ghcr.io/borjis131/smf:${OPEN5GS_VERSION}"
+    command: "-c /etc/open5gs/custom/smf3.yaml"
+    networks:
+      open5gs:
+        aliases:
+          - smf3.open5gs.org
+    configs:
+      - source: smf3_config
+        target: /etc/open5gs/custom/smf3.yaml
+    depends_on:
+      - nrf
+      - upf3
+    volumes:
+      - ./logs:/var/log/open5gs
+
   upf1:
     container_name: upf1
     image: "ghcr.io/borjis131/upf:${OPEN5GS_VERSION}"
@@ -205,6 +222,23 @@ services:
     configs:
       - source: upf2_config
         target: /etc/open5gs/custom/upf2.yaml
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./logs:/var/log/open5gs
+
+  upf3:
+    container_name: upf3
+    image: "ghcr.io/borjis131/upf:${OPEN5GS_VERSION}"
+    command: "-c /etc/open5gs/custom/upf3.yaml"
+    networks:
+      open5gs:
+        aliases:
+          - upf3.open5gs.org
+    configs:
+      - source: upf3_config
+        target: /etc/open5gs/custom/upf3.yaml
     privileged: true
     cap_add:
       - NET_ADMIN
@@ -257,6 +291,23 @@ services:
     configs:
       - source: ue2_config
         target: /UERANSIM/config/ue2.yaml
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - gnb
+
+  ue3:
+    container_name: ue3
+    image: "ghcr.io/borjis131/ue:v3.2.7"
+    command: "-c /UERANSIM/config/ue3.yaml"
+    networks:
+      open5gs:
+        aliases:
+          - ue3.ueransim.org
+    configs:
+      - source: ue3_config
+        target: /UERANSIM/config/ue3.yaml
     privileged: true
     cap_add:
       - NET_ADMIN
@@ -353,13 +404,19 @@ configs:
     file: ./core/config/smf1.yaml
   smf2_config:
     file: ./core/config/smf2.yaml
+  smf3_config:
+    file: ./core/config/smf3.yaml
   upf1_config:
     file: ./core/config/upf1.yaml
   upf2_config:
     file: ./core/config/upf2.yaml
+  upf3_config:
+    file: ./core/config/upf3.yaml
   gnb_config:
     file: ./ran/config/gnb.yaml
   ue1_config:
     file: ./ran/config/ue1.yaml
   ue2_config:
     file: ./ran/config/ue2.yaml
+  ue3_config:
+    file: ./ran/config/ue3.yaml

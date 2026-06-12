@@ -4,9 +4,9 @@ import styled from 'styled-components';
 import { media, transitions } from 'helpers/style-utils';
 import oc from 'open-color';
 
-import SubscriberIcon from 'react-icons/lib/md/person-add';
-import ProfileIcon from 'react-icons/lib/md/content-copy';
-import AccountIcon from 'react-icons/lib/md/vpn-key';
+import { MdPersonAdd } from "react-icons/md";
+import { MdContentCopy } from "react-icons/md";
+import { MdVpnKey } from "react-icons/md";
 
 const Menu = styled.div`
   display: block;
@@ -26,7 +26,7 @@ const Menu = styled.div`
     transition: height .2s ease-in-out;
   `}
 
-  background-color: ${oc.indigo[5]};
+  background-color: #b11904;
   box-shadow: 3px 3px 6px rgba(0,0,0,0.1), 3px 3px 6px rgba(0,0,0,0.2);
 `;
 
@@ -38,14 +38,14 @@ const StyledItem = styled.div`
   transition: all .3s;
 
   cursor: pointer;
-  color: white;
-  background: ${p => p.active ? oc.indigo[7] : oc.indigo[5]};
+  color: ${p => p.active ? '#c9191e' : oc.white};
+  background: ${p => p.active ? oc.white : '#c9191e'};
 
-  border-left: ${p => p.active ? `12px solid ${oc.indigo[6]}` :
-    `12px solid ${oc.indigo[4]}`};
+  border-left: ${p => p.active ? `12px solid #c9191e` :
+    `12px solid #b11904`};
 
   &:hover {
-    background: ${p => p.active ? oc.indigo[7] : oc.indigo[6]};
+    background: ${p => p.active ? oc.white : "#c52d32"};
   }
 `;
 
@@ -82,15 +82,15 @@ const defaultProps = {
 const Sidebar = ({ isOpen, width, selectedView, onSelectView }) => (
   <Menu visible={isOpen} width={width}>
     <Item name="subscriber" selected={selectedView} onSelect={onSelectView}>
-      <Icon><SubscriberIcon/></Icon>
+      <Icon><MdPersonAdd/></Icon>
       <Title>Subscriber</Title>
     </Item>
     <Item name="profile" selected={selectedView} onSelect={onSelectView}>
-      <Icon><ProfileIcon/></Icon>
+      <Icon><MdContentCopy/></Icon>
       <Title>Profile</Title>
     </Item>
     <Item name="account" selected={selectedView} onSelect={onSelectView}>
-      <Icon><AccountIcon/></Icon>
+      <Icon><MdVpnKey/></Icon>
       <Title>Account</Title>
     </Item>
   </Menu>

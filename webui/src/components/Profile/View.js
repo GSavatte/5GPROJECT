@@ -4,14 +4,14 @@ import styled from 'styled-components';
 import oc from 'open-color';
 import { media } from 'helpers/style-utils';
 
-import EditIcon from 'react-icons/lib/md/edit';
-import DeleteIcon from 'react-icons/lib/md/delete';
-import CloseIcon from 'react-icons/lib/md/close';
+import { MdEdit } from "react-icons/md";
+import { MdDelete } from "react-icons/md";
+import { MdClose } from "react-icons/md";
 
-import PhoneIcon from 'react-icons/lib/md/phone';
-import SecurityIcon from 'react-icons/lib/md/security';
-import PdnIcon from 'react-icons/lib/md/cast';
-import KeyboardControlIcon from 'react-icons/lib/md/keyboard-control';
+import { MdPhone } from "react-icons/md";
+import { MdSecurity } from "react-icons/md";
+import { MdCast } from "react-icons/md";
+import { MdKeyboardControlKey } from "react-icons/md";
 
 import { Modal, Tooltip, Dimmed } from 'components';
 
@@ -185,13 +185,13 @@ const View = ({ visible, disableOnClickOutside, profile, onEdit, onDelete, onHid
             <div className="title">{title}</div>
             <div className="actions">
               <Tooltip content='Edit' width="60px">
-                <CircleButton onClick={() => onEdit(_id)}><EditIcon/></CircleButton>
+                <CircleButton onClick={() => onEdit(_id)}><MdEdit/></CircleButton>
               </Tooltip>
               <Tooltip content='Delete' width="60px">
-                <CircleButton className="delete" onClick={() => onDelete(_id)}><DeleteIcon/></CircleButton>
+                <CircleButton className="delete" onClick={() => onDelete(_id)}><MdDelete/></CircleButton>
               </Tooltip>
               <Tooltip content='Close' width="60px">
-                <CircleButton className="delete" onClick={onHide}><CloseIcon/></CircleButton>
+                <CircleButton className="delete" onClick={onHide}><MdClose/></CircleButton>
               </Tooltip>
             </div>
           </Header>
@@ -205,19 +205,19 @@ const View = ({ visible, disableOnClickOutside, profile, onEdit, onDelete, onHid
                   {(msisdn_list.length !== 0 || (imeisv && imeisv.length !== 0)) &&
                     <div className="body">
                       <div className="left">
-                        <PhoneIcon/>
+                        <MdPhone/>
                       </div>
                       <div className="right">
                         {msisdn_list.map((msisdn, index) =>
                           <div key={index} className="data">
                             {msisdn}
-                            <span style={{color:oc.gray[5]}}><KeyboardControlIcon/>MSISDN</span>
+                            <span style={{color:oc.gray[5]}}><MdKeyboardControlKey/>MSISDN</span>
                           </div>
                         )}
                         {imeisv && imeisv.length !== 0 &&
                           <div className="data">
                             {imeisv}
-                            <span style={{color:oc.gray[5]}}><KeyboardControlIcon/>IMEISV</span>
+                            <span style={{color:oc.gray[5]}}><MdKeyboardControlKey/>IMEISV</span>
                           </div>
                         }
                       </div>
@@ -225,33 +225,33 @@ const View = ({ visible, disableOnClickOutside, profile, onEdit, onDelete, onHid
                   }
                   <div className="body">
                     <div className="left">
-                      <SecurityIcon/>
+                      <MdSecurity/>
                     </div>
                     <div className="right">
                       <div className="data">
                         {security.k}
-                        <span style={{color:oc.gray[5]}}><KeyboardControlIcon/>K</span>
+                        <span style={{color:oc.gray[5]}}><MdKeyboardControlKey/>K</span>
                       </div>
                       {security.opc &&
                         <div className="data">
                           {security.opc}
-                          <span style={{color:oc.gray[5]}}><KeyboardControlIcon/>OPc</span>
+                          <span style={{color:oc.gray[5]}}><MdKeyboardControlKey/>OPc</span>
                         </div>
                       }
                       {security.op &&
                         <div className="data">
                           {security.op}
-                          <span style={{color:oc.gray[5]}}><KeyboardControlIcon/>OP</span>
+                          <span style={{color:oc.gray[5]}}><MdKeyboardControlKey/>OP</span>
                         </div>
                       }
                       <div className="data">
                         {security.amf}
-                        <span style={{color:oc.gray[5]}}><KeyboardControlIcon/>AMF</span>
+                        <span style={{color:oc.gray[5]}}><MdKeyboardControlKey/>AMF</span>
                       </div>
                       {security.sqn &&
                         <div className="data">
                           {security.sqn}
-                          <span style={{color:oc.gray[5]}}><KeyboardControlIcon/>SQN</span>
+                          <span style={{color:oc.gray[5]}}><MdKeyboardControlKey/>SQN</span>
                         </div>
                       }
                     </div>
@@ -260,7 +260,7 @@ const View = ({ visible, disableOnClickOutside, profile, onEdit, onDelete, onHid
                 <div className="sectioncolumn">
                   <div className="body">
                     <div className="left">
-                      <PdnIcon/>
+                      <MdCast/>
                     </div>
                     <div className="right">
                       <div className="data">
@@ -276,7 +276,7 @@ const View = ({ visible, disableOnClickOutside, profile, onEdit, onDelete, onHid
                                 ambr.downlink.unit === 3 ? "Gbps" :
                                 ambr.downlink.unit === 4 ? "Tbps" :
                                   "Unknown Unit" }
-                        <span style={{color:oc.gray[5]}}><KeyboardControlIcon/>UL</span>
+                        <span style={{color:oc.gray[5]}}><MdKeyboardControlKey/>UL</span>
                       </div>
                       <div className="data">
                         {ambr['uplink'] === undefined ? "unlimited" :
@@ -291,7 +291,7 @@ const View = ({ visible, disableOnClickOutside, profile, onEdit, onDelete, onHid
                                 ambr.uplink.unit === 3 ? "Gbps" :
                                 ambr.uplink.unit === 4 ? "Tbps" :
                                   "Unknown Unit" }
-                        <span style={{color:oc.gray[5]}}><KeyboardControlIcon/>DL</span>
+                        <span style={{color:oc.gray[5]}}><MdKeyboardControlKey/>DL</span>
                       </div>
                     </div>
                   </div>

@@ -10,6 +10,11 @@ const schema = {
   "title": "Subscriber Configuration",
   "type": "object",
   "properties": {
+    "alias": {
+      "type": "string",
+      "title": "Alias",
+      "maxLength": 100
+    },
     "imsi": {
       "type": "string",
       "title": "IMSI*",

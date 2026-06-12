@@ -6,7 +6,7 @@ import oc from 'open-color';
 import { Modal } from 'components';
 import { media, transitions } from 'helpers/style-utils';
 
-import PersonIcon from 'react-icons/lib/md/person';
+import { RiLogoutCircleRLine } from "react-icons/ri";
 
 const Wrapper = styled.div`
   width: 300px;

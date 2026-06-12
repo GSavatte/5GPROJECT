@@ -7,8 +7,8 @@ import oc from 'open-color';
 import { media } from 'helpers/style-utils';
 
 import { CircleIcon } from 'components';
-import PersonIcon from 'react-icons/lib/md/person';
-import CloseIcon from 'react-icons/lib/md/close';
+import { MdPerson } from "react-icons/md";
+import { MdClose } from "react-icons/md";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -61,7 +61,7 @@ const ErrorBar = ({ visible, message, onClose }) => visible ? (
       {message}
     </ErrorMessage>
     <ErrorClose onClick={onClose}>
-      <CloseIcon/>
+      <MdClose/>
     </ErrorClose>
   </ErrorWrapper>
 ) : null;
@@ -177,7 +177,7 @@ const Login = ({
         onClose={onErrorReset} />
       <Thumbnail>
         <CircleIcon size='8rem' background={oc['blue'][6]}>
-          <PersonIcon/>
+          <MdPerson/>
         </CircleIcon>
       </Thumbnail>
       <Form>

@@ -9,6 +9,8 @@ const Subscriber = new Schema({
     default: 1  // Current Schema Version
   },
 
+  alias: String,
+
   imsi: { $type: String, unique: true, required: true },
 
   msisdn: [ String ],

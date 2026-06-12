@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import oc from 'open-color';
 
 import { CircleIcon } from 'components';
-import SchoolIcon from 'react-icons/lib/md/import-contacts'
+import { MdImportContacts } from "react-icons/md";
 
 const Wrapper = styled.div`
   position: relative;
@@ -38,7 +38,7 @@ const StyledBody = styled.div`
 const Blank = ({visible, title, body, onTitle}) => visible ? (
   <Wrapper>
     <CircleIcon size="12rem" background={oc.gray[0]} color={oc.gray[8]}>
-      <SchoolIcon/>
+      <MdImportContacts/>
     </CircleIcon>
     <StyledBody>{body}</StyledBody>
     <StyledTitle onClick={onTitle}>{title}</StyledTitle>

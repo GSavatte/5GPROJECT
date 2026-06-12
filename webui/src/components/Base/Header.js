@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import oc from 'open-color';
 
 import { CircleIcon, Tooltip } from 'components';
-import MenuIcon from 'react-icons/lib/md/menu';
-import PersonIcon from 'react-icons/lib/md/person';
+import { MdMenu } from "react-icons/md";
+import { RiLogoutCircleRLine } from "react-icons/ri";
 
 const Wrapper = styled.div`
   display: flex;
@@ -13,7 +13,7 @@ const Wrapper = styled.div`
   height: 4rem;
 
   color: white;
-  background: ${oc.indigo[9]};
+  background: #b11904;
 `;
 
 const Menu = styled.div`
@@ -48,7 +48,7 @@ const propTypes = {
 const Header = ({ onSidebarToggle, onLogoutRequest }) => (
   <Wrapper>
     <Menu onClick={onSidebarToggle}>
-      <MenuIcon/>
+      <MdMenu/>
     </Menu>
     <Title>
       Open5GS
@@ -56,7 +56,7 @@ const Header = ({ onSidebarToggle, onLogoutRequest }) => (
     <Thumbnail onClick={onLogoutRequest}>
       <Tooltip bottom content='Logout' width="60px">
         <CircleIcon size="2rem" background={oc['pink'][4]}>
-          <PersonIcon/>
+          <RiLogoutCircleRLine/>
         </CircleIcon>
       </Tooltip>
     </Thumbnail>

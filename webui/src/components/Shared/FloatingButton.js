@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import oc from 'open-color';
 
-import AddIcon from 'react-icons/lib/md/add';
+import { MdAdd } from "react-icons/md";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -34,7 +34,7 @@ const Wrapper = styled.div`
 
 const FloatingButton = ({onClick}) => (
   <Wrapper onClick={onClick}>
-    <AddIcon/>
+    <MdAdd/>
   </Wrapper>
 );
 
