@@ -7,6 +7,7 @@ import oc from 'open-color';
 import { MdPersonAdd } from "react-icons/md";
 import { MdContentCopy } from "react-icons/md";
 import { MdVpnKey } from "react-icons/md";
+import { MdMap } from "react-icons/md";
 
 const Menu = styled.div`
   display: block;
@@ -84,6 +85,10 @@ const Sidebar = ({ isOpen, width, selectedView, onSelectView }) => (
     <Item name="subscriber" selected={selectedView} onSelect={onSelectView}>
       <Icon><MdPersonAdd/></Icon>
       <Title>Subscriber</Title>
+    </Item>
+    <Item name="map" selected={selectedView} onSelect={onSelectView}>
+      <Icon><MdMap/></Icon>
+      <Title>Network Map</Title>
     </Item>
     <Item name="profile" selected={selectedView} onSelect={onSelectView}>
       <Icon><MdContentCopy/></Icon>

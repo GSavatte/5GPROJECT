@@ -11,6 +11,7 @@ import Notification from 'containers/Notification';
 import * as Subscriber from 'containers/Subscriber';
 import * as Profile from 'containers/Profile';
 import * as Account from 'containers/Account';
+import * as Map from 'containers/Map';
 
 class App extends Component {
   static propTypes = {
@@ -46,6 +47,9 @@ class App extends Component {
       <Layout>
         <Layout.Container visible={view === "subscriber"}>
           <Subscriber.Collection/>
+        </Layout.Container>
+        <Layout.Container visible={view === "map"}>
+          <Map.Collection/>
         </Layout.Container>
         <Layout.Container visible={view === "profile"}>
           <Profile.Collection/>
