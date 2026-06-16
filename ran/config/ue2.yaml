@@ -6,11 +6,11 @@ key: '00000000000000000000000000000000'
 op: '00000000000000000000000000000000'
 opType: 'OPC'
 amf: '8000'
-imei: '356938035643803'
-imeiSv: '4370816125816151'
+imei: '356938035643802'
+imeiSv: '4370816125816152'
 
 gnbSearchList:
-  - gnb.ueransim.org
+  - gnb1.ueransim.org
 
 uacAic:
   mps: false
@@ -29,15 +29,15 @@ sessions:
     apn: 'internet'
     slice:
       sst: 1
-      sd: 0x000002
+      sd: 0x000001
 
 configured-nssai:
   - sst: 1
-    sd: 0x000002
+    sd: 0x000001
 
 default-nssai:
   - sst: 1
-    sd: 0x000002
+    sd: 0x000001
 
 integrity:
   IA1: true

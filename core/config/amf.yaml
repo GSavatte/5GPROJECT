@@ -34,8 +34,8 @@ amf:
       s_nssai:
         - sst: 1
           sd: 000001
-        - sst: 1
-          sd: 000002
+        - sst: 2
+          sd: 000001
         - sst: 3
           sd: 000001
   security:

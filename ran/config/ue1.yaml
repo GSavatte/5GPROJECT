@@ -6,11 +6,11 @@ key: '00000000000000000000000000000000'
 op: '00000000000000000000000000000000'
 opType: 'OPC'
 amf: '8000'
-imei: '356938035643803'
+imei: '356938035643801'
 imeiSv: '4370816125816151'
 
 gnbSearchList:
-  - gnb.ueransim.org
+  - gnb1.ueransim.org
 
 uacAic:
   mps: false

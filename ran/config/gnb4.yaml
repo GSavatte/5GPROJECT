@@ -1,0 +1,22 @@
+mcc: '208'
+mnc: '01'
+
+nci: '0x000000040'
+idLength: 32
+tac: 1
+
+linkIp: gnb4.ueransim.org
+ngapIp: gnb4.ueransim.org
+gtpIp: gnb4.ueransim.org
+
+amfConfigs:
+  - address: amf.open5gs.org
+    port: 38412
+
+slices:
+  - sst: 1
+    sd: 0x000001
+  - sst: 2
+    sd: 0x000001
+
+ignoreStreamIds: true

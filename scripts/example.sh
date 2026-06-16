@@ -2,10 +2,11 @@
 # The script inserts two subscriber documents into the `subscribers` collection of the `open5gs` database.
 # Each subscriber has an IMSI, RAU/TAU timer, network access mode, subscriber status, access restriction data, slice information, AMBR (Aggregate Maximum Bit Rate), and security information.
 
-echo "Inserting a 1st test subscriber (eMBB) into the database..."
+echo "Inserting a 1st test subscriber (eMBB) connected to gNB1 into the database..."
 sudo docker exec -it db mongosh open5gs --eval '
 db.subscribers.insertOne({
-    "alias": "Test Subscriber 1",
+    "alias": "Test Subscriber 1 eMBB",
+    "position": { "latitude": 48.118145, "longitude": -1.636548 },
     "imsi": "208011234567891",
     "subscribed_rau_tau_timer": 12,
     "network_access_mode": 0,
@@ -28,10 +29,11 @@ db.subscribers.insertOne({
     "schema_version": 1
 })'
 
-echo "Inserting a 2nd test subscriber (eMBB) into the database..."
+echo "Inserting a 2nd test subscriber (eMBB) connected to gNB1 into the database..."
 sudo docker exec -it db mongosh open5gs --eval '
 db.subscribers.insertOne({
-    "alias": "Test Subscriber 2",
+    "alias": "Test Subscriber 2 eMBB",
+    "position": { "latitude": 48.116123, "longitude": -1.638434 },
     "imsi": "208011234567892",
     "subscribed_rau_tau_timer": 12,
     "network_access_mode": 0,
@@ -39,7 +41,7 @@ db.subscribers.insertOne({
     "access_restriction_data": 32,
     "slice": [{
         "sst": 1,
-        "sd": "000002",
+        "sd": "000001",
         "default_indicator": true,
         "session": [{
             "name": "internet",
@@ -54,17 +56,207 @@ db.subscribers.insertOne({
     "schema_version": 1
 })'
 
-echo "Inserting a 3rd test subscriber (MIoT) into the database..."
+echo "Inserting a 3rd test subscriber (URLLC) connected to gNB1 into the database..."
 sudo docker exec -it db mongosh open5gs --eval '
 db.subscribers.insertOne({
-    "alias": "Test Subscriber 3",
+    "alias": "Test Subscriber 3 URLLC",
+    "position": { "latitude": 48.116169, "longitude": -1.638475 },
     "imsi": "208011234567893",
     "subscribed_rau_tau_timer": 12,
     "network_access_mode": 0,
     "subscriber_status": 0,
     "access_restriction_data": 32,
     "slice": [{
+        "sst": 2,
+        "sd": "000001",
+        "default_indicator": true,
+        "session": [{
+            "name": "internet",
+            "type": 3,
+            "pcc_rule": [],
+            "ambr": { "uplink": { "value": 1, "unit": 3 }, "downlink": { "value": 1, "unit": 3 } },
+            "qos": { "index": 9, "arp": { "priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 1 } }
+        }]
+    }],
+    "ambr": { "uplink": { "value": 1, "unit": 3 }, "downlink": { "value": 1, "unit": 3 } },
+    "security": { "k": "00000000000000000000000000000000", "amf": "8000", "op": null, "opc": "00000000000000000000000000000000", "sqn": NumberLong(0) },
+    "schema_version": 1
+})'
+
+echo "Inserting a 4th test subscriber (URLLC) connected to gNB2 into the database..."
+sudo docker exec -it db mongosh open5gs --eval '
+db.subscribers.insertOne({
+    "alias": "Test Subscriber 4 URLLC",
+    "position": { "latitude": 48.116169, "longitude": -1.638475 },
+    "imsi": "208011234567894",
+    "subscribed_rau_tau_timer": 12,
+    "network_access_mode": 0,
+    "subscriber_status": 0,
+    "access_restriction_data": 32,
+    "slice": [{
+        "sst": 2,
+        "sd": "000001",
+        "default_indicator": true,
+        "session": [{
+            "name": "internet",
+            "type": 3,
+            "pcc_rule": [],
+            "ambr": { "uplink": { "value": 1, "unit": 3 }, "downlink": { "value": 1, "unit": 3 } },
+            "qos": { "index": 9, "arp": { "priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 1 } }
+        }]
+    }],
+    "ambr": { "uplink": { "value": 1, "unit": 3 }, "downlink": { "value": 1, "unit": 3 } },
+    "security": { "k": "00000000000000000000000000000000", "amf": "8000", "op": null, "opc": "00000000000000000000000000000000", "sqn": NumberLong(0) },
+    "schema_version": 1
+})'
+
+echo "Inserting a 5th test subscriber (mMTC) connected to gNB2 into the database..."
+sudo docker exec -it db mongosh open5gs --eval '
+db.subscribers.insertOne({
+    "alias": "Test Subscriber 5 mMTC",
+    "position": { "latitude": 48.116169, "longitude": -1.638475 },
+    "imsi": "208011234567895",
+    "subscribed_rau_tau_timer": 12,
+    "network_access_mode": 0,
+    "subscriber_status": 0,
+    "access_restriction_data": 32,
+    "slice": [{
         "sst": 3,
+        "sd": "000001",
+        "default_indicator": true,
+        "session": [{
+            "name": "internet",
+            "type": 3,
+            "pcc_rule": [],
+            "ambr": { "uplink": { "value": 1, "unit": 3 }, "downlink": { "value": 1, "unit": 3 } },
+            "qos": { "index": 9, "arp": { "priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 1 } }
+        }]
+    }],
+    "ambr": { "uplink": { "value": 1, "unit": 3 }, "downlink": { "value": 1, "unit": 3 } },
+    "security": { "k": "00000000000000000000000000000000", "amf": "8000", "op": null, "opc": "00000000000000000000000000000000", "sqn": NumberLong(0) },
+    "schema_version": 1
+})'
+
+echo "Inserting a 6th test subscriber (mMTC) connected to gNB2 into the database..."
+sudo docker exec -it db mongosh open5gs --eval '
+db.subscribers.insertOne({
+    "alias": "Test Subscriber 6 mMTC",
+    "position": { "latitude": 48.116169, "longitude": -1.638475 },
+    "imsi": "208011234567896",
+    "subscribed_rau_tau_timer": 12,
+    "network_access_mode": 0,
+    "subscriber_status": 0,
+    "access_restriction_data": 32,
+    "slice": [{
+        "sst": 3,
+        "sd": "000001",
+        "default_indicator": true,
+        "session": [{
+            "name": "internet",
+            "type": 3,
+            "pcc_rule": [],
+            "ambr": { "uplink": { "value": 1, "unit": 3 }, "downlink": { "value": 1, "unit": 3 } },
+            "qos": { "index": 9, "arp": { "priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 1 } }
+        }]
+    }],
+    "ambr": { "uplink": { "value": 1, "unit": 3 }, "downlink": { "value": 1, "unit": 3 } },
+    "security": { "k": "00000000000000000000000000000000", "amf": "8000", "op": null, "opc": "00000000000000000000000000000000", "sqn": NumberLong(0) },
+    "schema_version": 1
+})'
+
+echo "Inserting a 7th test subscriber (eMBB) connected to gNB3 into the database..."
+sudo docker exec -it db mongosh open5gs --eval '
+db.subscribers.insertOne({
+    "alias": "Test Subscriber 7 eMBB",
+    "position": { "latitude": 48.116169, "longitude": -1.638475 },
+    "imsi": "208011234567897",
+    "subscribed_rau_tau_timer": 12,
+    "network_access_mode": 0,
+    "subscriber_status": 0,
+    "access_restriction_data": 32,
+    "slice": [{
+        "sst": 1,
+        "sd": "000001",
+        "default_indicator": true,
+        "session": [{
+            "name": "internet",
+            "type": 3,
+            "pcc_rule": [],
+            "ambr": { "uplink": { "value": 1, "unit": 3 }, "downlink": { "value": 1, "unit": 3 } },
+            "qos": { "index": 9, "arp": { "priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 1 } }
+        }]
+    }],
+    "ambr": { "uplink": { "value": 1, "unit": 3 }, "downlink": { "value": 1, "unit": 3 } },
+    "security": { "k": "00000000000000000000000000000000", "amf": "8000", "op": null, "opc": "00000000000000000000000000000000", "sqn": NumberLong(0) },
+    "schema_version": 1
+})'
+
+echo "Inserting a 8th test subscriber (URLLC) connected to gNB3 into the database..."
+sudo docker exec -it db mongosh open5gs --eval '
+db.subscribers.insertOne({
+    "alias": "Test Subscriber 8 URLLC",
+    "position": { "latitude": 48.116169, "longitude": -1.638475 },
+    "imsi": "208011234567898",
+    "subscribed_rau_tau_timer": 12,
+    "network_access_mode": 0,
+    "subscriber_status": 0,
+    "access_restriction_data": 32,
+    "slice": [{
+        "sst": 2,
+        "sd": "000001",
+        "default_indicator": true,
+        "session": [{
+            "name": "internet",
+            "type": 3,
+            "pcc_rule": [],
+            "ambr": { "uplink": { "value": 1, "unit": 3 }, "downlink": { "value": 1, "unit": 3 } },
+            "qos": { "index": 9, "arp": { "priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 1 } }
+        }]
+    }],
+    "ambr": { "uplink": { "value": 1, "unit": 3 }, "downlink": { "value": 1, "unit": 3 } },
+    "security": { "k": "00000000000000000000000000000000", "amf": "8000", "op": null, "opc": "00000000000000000000000000000000", "sqn": NumberLong(0) },
+    "schema_version": 1
+})'
+
+echo "Inserting a 9th test subscriber (URLLC) connected to gNB4 into the database..."
+sudo docker exec -it db mongosh open5gs --eval '
+db.subscribers.insertOne({
+    "alias": "Test Subscriber 9 URLLC",
+    "position": { "latitude": 48.116169, "longitude": -1.638475 },
+    "imsi": "208011234567899",
+    "subscribed_rau_tau_timer": 12,
+    "network_access_mode": 0,
+    "subscriber_status": 0,
+    "access_restriction_data": 32,
+    "slice": [{
+        "sst": 2,
+        "sd": "000001",
+        "default_indicator": true,
+        "session": [{
+            "name": "internet",
+            "type": 3,
+            "pcc_rule": [],
+            "ambr": { "uplink": { "value": 1, "unit": 3 }, "downlink": { "value": 1, "unit": 3 } },
+            "qos": { "index": 9, "arp": { "priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 1 } }
+        }]
+    }],
+    "ambr": { "uplink": { "value": 1, "unit": 3 }, "downlink": { "value": 1, "unit": 3 } },
+    "security": { "k": "00000000000000000000000000000000", "amf": "8000", "op": null, "opc": "00000000000000000000000000000000", "sqn": NumberLong(0) },
+    "schema_version": 1
+})'
+
+echo "Inserting a 10th test subscriber (URLLC) connected to gNB4 into the database..."
+sudo docker exec -it db mongosh open5gs --eval '
+db.subscribers.insertOne({
+    "alias": "Test Subscriber 10 URLLC",
+    "position": { "latitude": 48.116169, "longitude": -1.638475 },
+    "imsi": "208011234567810",
+    "subscribed_rau_tau_timer": 12,
+    "network_access_mode": 0,
+    "subscriber_status": 0,
+    "access_restriction_data": 32,
+    "slice": [{
+        "sst": 2,
         "sd": "000001",
         "default_indicator": true,
         "session": [{

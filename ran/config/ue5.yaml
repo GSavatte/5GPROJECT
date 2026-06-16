@@ -1,4 +1,4 @@
-supi: 'imsi-208011234567893'
+supi: 'imsi-208011234567895'
 mcc: '208'
 mnc: '01'
 
@@ -6,11 +6,11 @@ key: '00000000000000000000000000000000'
 op: '00000000000000000000000000000000'
 opType: 'OPC'
 amf: '8000'
-imei: '356938035643803'
-imeiSv: '4370816125816153'
+imei: '356938035643805'
+imeiSv: '4370816125816155'
 
 gnbSearchList:
-  - gnb1.ueransim.org
+  - gnb2.ueransim.org
 
 uacAic:
   mps: false
@@ -28,15 +28,15 @@ sessions:
   - type: 'IPv4'
     apn: 'internet'
     slice:
-      sst: 2
+      sst: 3
       sd: 0x000001
 
 configured-nssai:
-  - sst: 2
+  - sst: 3
     sd: 0x000001
 
 default-nssai:
-  - sst: 2
+  - sst: 3
     sd: 0x000001
 
 integrity:

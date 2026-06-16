@@ -1,4 +1,4 @@
-supi: 'imsi-208011234567893'
+supi: 'imsi-208011234567810'
 mcc: '208'
 mnc: '01'
 
@@ -6,11 +6,11 @@ key: '00000000000000000000000000000000'
 op: '00000000000000000000000000000000'
 opType: 'OPC'
 amf: '8000'
-imei: '356938035643803'
-imeiSv: '4370816125816153'
+imei: '356938035643810'
+imeiSv: '4370816125816110'
 
 gnbSearchList:
-  - gnb1.ueransim.org
+  - gnb4.ueransim.org
 
 uacAic:
   mps: false

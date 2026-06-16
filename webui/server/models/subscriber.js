@@ -11,6 +11,11 @@ const Subscriber = new Schema({
 
   alias: String,
 
+  position: {
+    latitude: { $type: Number, required: true, default: 48.116074 },
+    longitude: { $type: Number, required: true, default: -1.63841 }
+  },
+
   imsi: { $type: String, unique: true, required: true },
 
   msisdn: [ String ],
