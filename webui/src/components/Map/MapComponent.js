@@ -1,3 +1,4 @@
+// components/Map/MapComponent.js
 import React from 'react';
 import { Map, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
@@ -10,57 +11,83 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.3.1/dist/images/marker-shadow.png',
 });
 
-// Position de l'antenne (gNB)
-const gnbPosition = [48.1160, -1.6384];
+const gnbIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34]
+});
 
-// Positions de tes équipements (UEs)
-const ues = [
-  { name: 'UE 1 (Smartphone)', position: [48.1175, -1.6400] },
-  { name: 'UE 3 (IoT Sensor)', position: [48.1145, -1.6360] }
-];
+const ueIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34]
+});
 
-const MapComponent = () => (
-  <div style={{ height: '100%', width: '100%' }}>
-    <Head>
-      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" />
-    </Head>
-    
-    <Map 
-      center={[48.116074, -1.63841]} 
-      zoom={15} 
-      style={{ height: '100%', width: '100%' }}
-    >
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+const MapComponent = ({ gnbs = [], ues = [] }) => {
+
+  const centerPosition = gnbs.length > 0 
+    ? [gnbs[0].location.lat, gnbs[0].location.lng] 
+    : [48.116074, -1.63841];
+
+  return (
+    <div style={{ height: '100%', width: '100%' }}>
+      <Head>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" />
+      </Head>
       
-      {/* Marqueur de l'antenne gNB */}
-      <Marker position={gnbPosition}>
-        <Popup>
-          <strong>gNB_Main_Campus</strong>
-        </Popup>
-      </Marker>
+      <Map center={centerPosition} zoom={15} style={{ height: '100%', width: '100%' }}>
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        
+        {gnbs.map((gnb, index) => (
+          <Marker 
+            key={`gnb-${gnb._id || index}`} 
+            position={[gnb.location.lat, gnb.location.lng]}
+            icon={gnbIcon}
+          >
+            <Popup>
+              <strong>{gnb.name || `gNB ${gnb.gnbId}`}</strong>
+            </Popup>
+          </Marker>
+        ))}
 
-      {/* 1ère Boucle : Dessiner uniquement les UEs */}
-      {ues.map((ue, index) => (
-        <Marker key={`marker-${index}`} position={ue.position}>
-          <Popup>
-            <span>{ue.name}</span>
-          </Popup>
-        </Marker>
-      ))}
+        {ues.map((ue, index) => (
+          <Marker 
+            key={`ue-${ue._id || index}`} 
+            position={[ue.position.latitude, ue.position.longitude]}
+            icon={ueIcon}
+          >
+            <Popup>
+              <strong>UE: {ue.imsi}</strong>
+            </Popup>
+          </Marker>
+        ))}
 
-      {/* 2ème Boucle : Tracer uniquement les liens radio vers le gNB */}
-      {ues.map((ue, index) => (
-        <Polyline 
-          key={`line-${index}`}
-          positions={[gnbPosition, ue.position]} 
-          color="#e74c3c" 
-          weight={3}      
-          opacity={0.8}
-          dashArray="10, 10" 
-        />
-      ))}
-    </Map>
-  </div>
-);
+        {ues.map((ue, index) => {
+          if (ue.connectedGnbId) {
+            const connectedGnb = gnbs.find(gnb => gnb.gnbId === ue.connectedGnbId);
+            if (connectedGnb) {
+              return (
+                <Polyline 
+                  key={`line-${ue._id || index}`} 
+                  positions={[
+                    [ue.position.latitude, ue.position.longitude],
+                    [connectedGnb.location.lat, connectedGnb.location.lng]
+                  ]}
+                  color="blue"
+                />
+              );
+            }
+          }
+          return null;
+        })}
+
+      </Map>
+    </div>
+  );
+};
 
 export default MapComponent;

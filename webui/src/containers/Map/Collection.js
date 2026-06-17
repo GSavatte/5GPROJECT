@@ -1,9 +1,39 @@
+// containers/Map/Collection.js
 import { Component } from 'react';
+import { connect } from 'react-redux';
 
-class Collection extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { MapComponent: null };
+import { fetchSubscribers } from 'modules/crud/subscriber';
+import { fetchGnbs } from 'modules/crud/gnb';
+import { select } from 'modules/crud/selectors';
+
+import { Layout, Spinner } from 'components';
+
+class MapCollection extends Component {
+  state = {
+    MapComponent: null
+  };
+
+  componentWillMount() {
+    const { subscribers, gnbs, dispatch } = this.props;
+
+    if (subscribers.needsFetch) {
+      dispatch(subscribers.fetch);
+    }
+    if (gnbs.needsFetch) {
+      dispatch(gnbs.fetch);
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { subscribers, gnbs } = nextProps;
+    const { dispatch } = this.props;
+
+    if (subscribers.needsFetch && !subscribers.isLoading) {
+      dispatch(subscribers.fetch);
+    }
+    if (gnbs.needsFetch && !gnbs.isLoading) {
+      dispatch(gnbs.fetch);
+    }
   }
 
   componentDidMount() {
@@ -13,16 +43,30 @@ class Collection extends Component {
 
   render() {
     const { MapComponent } = this.state;
+    const { subscribers, gnbs } = this.props;
+
+    const isLoading = subscribers.isLoading || gnbs.isLoading;
 
     return (
-      <div style={{ padding: '20px', height: '100%', width: '100%' }}>
-        <h2 style={{ marginBottom: '20px' }}>Topologie du Réseau 5G</h2>
-        <div style={{ height: '70vh', width: '100%', border: '1px solid #ddd', borderRadius: '4px' }}>
-          {MapComponent ? <MapComponent /> : <p style={{ padding: '20px' }}>Chargement de la carte...</p>}
-        </div>
-      </div>
+      <Layout.Content>
+        {isLoading && <Spinner md />}
+
+        {!isLoading && MapComponent && (
+          <div style={{ height: '80vh', width: '100%', borderRadius: '4px', overflow: 'hidden' }}>
+            <MapComponent 
+              ues={subscribers.data} 
+              gnbs={gnbs.data} 
+            />
+          </div>
+        )}
+      </Layout.Content>
     );
   }
 }
 
-export default Collection;
+export default connect(
+  (state) => ({ 
+    subscribers: select(fetchSubscribers(), state.crud),
+    gnbs: select(fetchGnbs(), state.crud)
+  })
+)(MapCollection);

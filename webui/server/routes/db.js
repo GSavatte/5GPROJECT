@@ -23,4 +23,11 @@ restify.serve(router, Account, {
   idProperty: 'username'
 });
 
+const Gnb = require('../models/gnb');
+restify.serve(router, Gnb, {
+  prefix: '',
+  version: '',
+  idProperty: 'gnbId'
+});
+
 module.exports = router;

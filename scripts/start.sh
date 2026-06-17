@@ -17,4 +17,9 @@ for ue in "${UE_CONTAINERS[@]}"; do
     sleep 2 
 done
 
+if [ "$1" == "--webui" ]; then
+    echo "Lancement de l'interface web..."
+    docker compose up -d webui
+fi
+
 echo "Réseau entièrement déployé."
