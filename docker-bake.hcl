@@ -155,7 +155,8 @@ target "webui" {
   args = {
     NODE_VERSION = "${NODE_VERSION}"
   }
-  context = "./images/webui"
+  context = "."
+  dockerfile = "./images/webui/Dockerfile"
   tags = ["webui:${OPEN5GS_VERSION}"]
   output = ["type=image"]
 }

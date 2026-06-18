@@ -1,19 +1,34 @@
 # syntax=docker/dockerfile:1
 ARG NODE_VERSION="20"
 
-# --- STAGE 1: Builder ---
+# --- STAGE 1: Development ---
+FROM node:${NODE_VERSION}-bookworm AS dev
+
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+ARG OPEN5GS_VERSION="v2.7.6"
+WORKDIR /usr/local/src/webui
+COPY webui/package*.json ./
+RUN npm ci
+COPY webui .
+
+ENTRYPOINT ["npm"]
+
+# --- STAGE 2: Builder ---
 FROM node:${NODE_VERSION}-bookworm AS builder
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 ARG OPEN5GS_VERSION="v2.7.6"
 WORKDIR /webui
-COPY ./webui . 
-RUN npm ci && npm run build
+COPY webui/package*.json ./
+RUN npm ci
+COPY webui .
+RUN npm run build
 
 RUN ls -R /webui/.next
 
-# --- STAGE 2: Runtime (Production) ---
+# --- STAGE 3: Runtime (Production) ---
 FROM node:${NODE_VERSION}-bookworm-slim
 
 RUN groupadd -r open5gs && useradd -r -g open5gs open5gs
