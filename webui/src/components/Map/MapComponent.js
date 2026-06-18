@@ -41,18 +41,6 @@ const MapComponent = ({ gnbs = [], ues = [] }) => {
       
       <Map center={centerPosition} zoom={15} style={{ height: '100%', width: '100%' }}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        
-        {gnbs.map((gnb, index) => (
-          <Marker 
-            key={`gnb-${gnb._id || index}`} 
-            position={[gnb.location.lat, gnb.location.lng]}
-            icon={gnbIcon}
-          >
-            <Popup>
-              <strong>{gnb.name || `gNB ${gnb.gnbId}`}</strong>
-            </Popup>
-          </Marker>
-        ))}
 
         {ues.map((ue, index) => (
           <Marker 
@@ -65,25 +53,18 @@ const MapComponent = ({ gnbs = [], ues = [] }) => {
             </Popup>
           </Marker>
         ))}
-
-        {ues.map((ue, index) => {
-          if (ue.connectedGnbId) {
-            const connectedGnb = gnbs.find(gnb => gnb.gnbId === ue.connectedGnbId);
-            if (connectedGnb) {
-              return (
-                <Polyline 
-                  key={`line-${ue._id || index}`} 
-                  positions={[
-                    [ue.position.latitude, ue.position.longitude],
-                    [connectedGnb.location.lat, connectedGnb.location.lng]
-                  ]}
-                  color="blue"
-                />
-              );
-            }
-          }
-          return null;
-        })}
+        
+        {gnbs.map((gnb, index) => (
+          <Marker 
+            key={`gnb-${gnb._id || index}`} 
+            position={[gnb.location.lat, gnb.location.lng]}
+            icon={gnbIcon}
+          >
+            <Popup>
+              <strong>{gnb.name || `gNB ${gnb.gnbId}`}</strong>
+            </Popup>
+          </Marker>
+        ))}
 
       </Map>
     </div>
