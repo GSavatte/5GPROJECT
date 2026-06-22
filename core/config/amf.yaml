@@ -47,3 +47,7 @@ amf:
   time:
     t3512:
       value: 540
+
+metrics:
+- address: 0.0.0.0
+  port: 9090

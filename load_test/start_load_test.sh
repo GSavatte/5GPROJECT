@@ -1,5 +1,11 @@
 #!/bin/bash
 
+echo "Installation de curl..."
+sleep 5
+apt-get update -y > /dev/null 2>&1
+apt-get install curl -y > /dev/null 2>&1
+echo "Installation de curl terminée."
+
 nombre_ues=200
 NUM_GNBS=4
 
