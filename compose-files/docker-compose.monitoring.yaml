@@ -41,6 +41,19 @@ services:
       - monitoring_net
     volumes:
       - grafana_data:/var/lib/grafana
+  
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    volumes:
+      - /sys:/host/sys:ro
+    command:
+      - '--path.sysfs=/host/sys'
+    networks:
+      - monitoring_net
 
 networks:
   oepn5gs_ext:

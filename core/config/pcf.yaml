@@ -14,3 +14,7 @@ pcf:
     client:
       nrf:
         - uri: http://nrf.open5gs.org:80
+  metrics:
+    server:
+      - address: pcf.open5gs.org
+        port: 9090

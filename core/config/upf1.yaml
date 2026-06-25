@@ -12,6 +12,10 @@ upf:
   gtpu:
     server:
       - address: upf1.open5gs.org
+  metrics:
+    server:
+      - address: upf1.open5gs.org
+        port: 9090
   session:
     - subnet: 10.45.0.0/16
       gateway: 10.45.0.1

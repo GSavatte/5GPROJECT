@@ -21,6 +21,10 @@ smf:
   gtpu:
     server:
       - address: smf3.open5gs.org
+  metrics:
+    server:
+      - address: smf3.open5gs.org
+        port: 9090
   session:
     - subnet: 10.47.0.0/16
       gateway: 10.47.0.1
