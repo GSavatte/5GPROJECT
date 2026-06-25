@@ -1,26 +1,19 @@
 #!/bin/bash
 
-UES_TO_TEST=50
-COUNT=0
+SINK_IP=$(getent hosts internet-sim | awk '{ print $1 }')
 
-echo "Démarrage du test de charge avec $UES_TO_TEST UEs..."
+if [ -z "$SINK_IP" ]; then
+    echo "Erreur : Impossible de trouver l'IP du conteneur internet-sim."
+    echo "Le conteneur est-il bien allumé et sur le même réseau ?"
+    exit 1
+fi
 
-INTERFACES=$(ip link show | grep -oP 'uesimtun\d+')
+echo "Cible trouvée à l'adresse : $SINK_IP"
+echo "Lancement de la tempête de trafic sur 100 UEs..."
 
-for tun in $INTERFACES; do
-    if [ "$COUNT" -ge "$UES_TO_TEST" ]; then
-        break
-    fi
-
-    echo "Génération de trafic sur l'interface $tun..."
-
-    while true; do
-        curl --interface "$tun" -o /dev/null -s http://ipv4.download.thinkbroadband.com/10MB.zip
-        sleep 2
-    done &
-
-    COUNT=$((COUNT + 1))
+for i in {0..399}; do
+    curl --interface uesimtun$i -o /dev/null http://$SINK_IP/1GB.bin &
 done
 
-echo "Test de charge lancé avec $COUNT UEs. Appuyez sur Ctrl+C pour arrêter le test..."
+echo "Les 100 téléchargements sont en cours en arrière-plan !"
 wait

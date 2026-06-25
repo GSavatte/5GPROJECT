@@ -29,6 +29,15 @@ services:
     networks:
       - open5gs
 
+  internet-sim:
+    image: nginx:alpine
+    container_name: internet-sim
+    restart: unless-stopped
+    networks:
+      - open5gs
+    volumes:
+      - ../load_test:/usr/share/nginx/html
+
 networks:
   open5gs:
     external: true
