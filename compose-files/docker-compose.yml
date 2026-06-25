@@ -394,38 +394,38 @@ volumes:
 
 configs:
   nrf_config:
-    file: ../core/config/nrf.yaml
+    file: ../config-files/core/nrf.yaml
   ausf_config:
-    file: ../core/config/ausf.yaml
+    file: ../config-files/core/ausf.yaml
   udm_config:
-    file: ../core/config/udm.yaml
+    file: ../config-files/core/udm.yaml
   udr_config:
-    file: ../core/config/udr.yaml
+    file: ../config-files/core/udr.yaml
   nssf_config:
-    file: ../core/config/nssf.yaml
+    file: ../config-files/core/nssf.yaml
   bsf_config:
-    file: ../core/config/bsf.yaml
+    file: ../config-files/core/bsf.yaml
   pcf_config:
-    file: ../core/config/pcf.yaml
+    file: ../config-files/core/pcf.yaml
   amf_config:
-    file: ../core/config/amf.yaml
+    file: ../config-files/core/amf.yaml
   smf1_config:
-    file: ../core/config/smf1.yaml
+    file: ../config-files/core/smf1.yaml
   smf2_config:
-    file: ../core/config/smf2.yaml
+    file: ../config-files/core/smf2.yaml
   smf3_config:
-    file: ../core/config/smf3.yaml
+    file: ../config-files/core/smf3.yaml
   upf1_config:
-    file: ../core/config/upf1.yaml
+    file: ../config-files/core/upf1.yaml
   upf2_config:
-    file: ../core/config/upf2.yaml
+    file: ../config-files/core/upf2.yaml
   upf3_config:
-    file: ../core/config/upf3.yaml
+    file: ../config-files/core/upf3.yaml
   gnb1_config:
-    file: ../ran/config/gnb1.yaml
+    file: ../config-files/ran/gnb1.yaml
   gnb2_config:
-    file: ../ran/config/gnb2.yaml
+    file: ../config-files/ran/gnb2.yaml
   gnb3_config:
-    file: ../ran/config/gnb3.yaml
+    file: ../config-files/ran/gnb3.yaml
   gnb4_config:
-    file: ../ran/config/gnb4.yaml
+    file: ../config-files/ran/gnb4.yaml

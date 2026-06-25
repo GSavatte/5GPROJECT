@@ -6,7 +6,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ../utils/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ../config-files/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     networks:
       - oepn5gs_ext
