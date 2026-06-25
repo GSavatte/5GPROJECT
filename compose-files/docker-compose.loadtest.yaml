@@ -3,7 +3,7 @@ services:
     image: mongo:latest
     container_name: db-seeder
     volumes:
-      - ../load_test:/config
+      - ../utils/load_test:/config
     command: mongosh "mongodb://db.open5gs.org/open5gs" /config/seed.js
     networks:
       - open5gs
@@ -20,7 +20,7 @@ services:
       db-seeder:
         condition: service_completed_successfully
     volumes:
-      - ../load_test:/config
+      - ../utils/load_test:/config
     entrypoint: ["/bin/bash", "/config/start_load_test.sh"]
     cap_add:
       - NET_ADMIN
@@ -36,7 +36,7 @@ services:
     networks:
       - open5gs
     volumes:
-      - ../load_test:/usr/share/nginx/html
+      - ../utils/load_test:/usr/share/nginx/html
 
 networks:
   open5gs:
