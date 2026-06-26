@@ -1181,6 +1181,7 @@
       "to": "now",
       "autoRefresh": "",
       "autoRefreshIntervals": [
+        "1s",
         "5s",
         "10s",
         "30s",
