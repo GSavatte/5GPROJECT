@@ -1,0 +1,23 @@
+mcc: '208'
+mnc: '01'
+
+nci: '0x0000000GNB_ID_PLACEHOLDER'
+idLength: 32
+nodeId: GNB_ID_PLACEHOLDER
+tac: 1
+
+amfConfigs:
+  - address: 'amf.open5gs.org'
+    port: 38412
+
+linkIp: gnbGNB_ID_PLACEHOLDER.ueransim.org
+ngapIp: gnbGNB_ID_PLACEHOLDER.ueransim.org
+gtpIp: gnbGNB_ID_PLACEHOLDER.ueransim.org
+
+slices:
+  - sst: 1
+    sd: 0x000001
+  - sst: 2
+    sd: 0x000001
+
+ignoreStreamIds: true
