@@ -6,7 +6,9 @@ apt-get install curl -y > /dev/null 2>&1
 echo "Installation de curl terminée."
 
 nombre_ues=400
-NUM_GNBS=4
+NUM_GNBS=$(ls -1 /config/generated_gnbs/ | wc -l)
+
+echo "Nombre d'antennes gNB détectées : $NUM_GNBS"
 
 echo "Base de données prête. Résolution des antennes..."
 
