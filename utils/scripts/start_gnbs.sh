@@ -12,6 +12,9 @@ CONFIG_DIR="$PROJECT_ROOT/config-files/generated_gnbs"
 
 mkdir -p $CONFIG_DIR
 
+rm -f $COMPOSE_FILE
+rm -f $CONFIG_DIR/*.yaml
+
 echo "services:" > $COMPOSE_FILE
 
 for i in $(seq 1 $NUM_GNBS); do
@@ -32,13 +35,6 @@ for i in $(seq 1 $NUM_GNBS); do
         configs:
             - source: ${HOSTNAME}_config
               target: /UERANSIM/config/${HOSTNAME}.yaml
-        depends_on:
-        - amf
-        - smf1
-        - smf2
-        - smf3
-        - pcf
-        - udr
 EOF
 done
 
@@ -55,4 +51,25 @@ EOF
 
 done
 
+echo "" >> "$COMPOSE_FILE"
+echo "networks:" >> "$COMPOSE_FILE"
+echo "  open5gs:" >> "$COMPOSE_FILE"
+echo "    external: true" >> "$COMPOSE_FILE"
+
 echo "Fichiers de configuration pour $NUM_GNBS antennes gNB générés avec succès."
+
+echo "Insertion des gNBs dans la base de données..."
+
+for i in $(seq 1 $NUM_GNBS); do
+    GNB_NAME="gnb${i}"
+    GNB_ID=$i
+    sudo docker exec -it db mongosh open5gs --eval '
+    db.gnbs.insertOne({
+        "gnbId": "'$GNB_ID'",
+        "name": "'$GNB_NAME'",
+        "location": { "lat": 48.117634, "lng": -1.636123 },
+        "supportedSlices": [{ "sst": 1, "sd": "000001" }, { "sst": 2, "sd": "000001" }, { "sst": 3, "sd": "000001" }],
+        "schema_version": 1
+    })'
+
+done

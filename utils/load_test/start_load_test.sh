@@ -6,7 +6,7 @@ apt-get install curl -y > /dev/null 2>&1
 echo "Installation de curl terminée."
 
 nombre_ues=400
-NUM_GNBS=$(ls -1 /config/generated_gnbs/ | wc -l)
+NUM_GNBS=$(ls -1 /generated_gnbs/ | wc -l)
 
 echo "Nombre d'antennes gNB détectées : $NUM_GNBS"
 
@@ -16,13 +16,23 @@ declare -A GNB_IPS
 for id in $(seq 1 $NUM_GNBS); do
   
   HOSTNAME="gnb${id}" 
+  IP=""
+  MAX_RETRIES=15
+  COUNT=0
   
-  # On interroge le système pour récupérer l'IPv4 brute
-  IP=$(getent hosts $HOSTNAME | awk '{ print $1 }' | head -n 1)
+  while [ -z "$IP" ] && [ $COUNT -lt $MAX_RETRIES ]; do
+    IP=$(getent hosts $HOSTNAME | awk '{ print $1 }' | head -n 1)
+    
+    if [ -z "$IP" ]; then
+       echo "⏳ Attente du réseau pour $HOSTNAME (Tentative $((COUNT+1))/$MAX_RETRIES)..."
+       sleep 1
+       COUNT=$((COUNT+1))
+    fi
+  done
   
   if [ -z "$IP" ]; then
-     echo "IP introuvable pour $HOSTNAME."
-     GNB_IPS[$id]=$HOSTNAME # on garde le nom s'il ne trouve pas l'IP
+     echo "❌ IP définitivement introuvable pour $HOSTNAME après $MAX_RETRIES secondes."
+     GNB_IPS[$id]=$HOSTNAME
   else
      echo "✅ Antenne $HOSTNAME trouvée sur l'IP : $IP"
      GNB_IPS[$id]=$IP
@@ -49,7 +59,7 @@ for i in $(seq 1 2 $nombre_ues); do
   /UERANSIM/nr-ue -c "/tmp/ue-${IMSI}.yaml" > "/tmp/logs-${IMSI}.txt" 2>&1 &
   /UERANSIM/nr-ue -c "/tmp/ue-${IMSI2}.yaml" > "/tmp/logs-${IMSI2}.txt" 2>&1 &
   
-  sleep 0.1 
+  sleep 0.13 
 done
 
 echo "Toutes les requêtes d'attachement on été envoyées aux gNBs. En attente de la création des interfaces réseau pour les UEs..."

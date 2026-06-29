@@ -21,7 +21,7 @@ services:
         condition: service_completed_successfully
     volumes:
       - ../utils/load_test:/config
-      - ../config-files/generated_gnbs:/config/generated_gnbs
+      - ../config-files/generated_gnbs:/generated_gnbs
     entrypoint: ["/bin/bash", "/config/start_load_test.sh"]
     cap_add:
       - NET_ADMIN
