@@ -59,11 +59,12 @@ for i in $(seq 1 2 $nombre_ues); do
   /UERANSIM/nr-ue -c "/tmp/ue-${IMSI}.yaml" > "/tmp/logs-${IMSI}.txt" 2>&1 &
   /UERANSIM/nr-ue -c "/tmp/ue-${IMSI2}.yaml" > "/tmp/logs-${IMSI2}.txt" 2>&1 &
   
-  sleep 0.13 
+  sleep 0.1
 done
 
-echo "Toutes les requêtes d'attachement on été envoyées aux gNBs. En attente de la création des interfaces réseau pour les UEs..."
+echo "Toutes les requêtes d'attachement on été envoyées aux gNBs. Création d'un fichier test d'1Gb..."
 
-sleep 5
+dd if=/dev/zero of=/config/1GB.bin bs=1M count=1000
+sleep 2
 
 bash -c "bash /config/generate_traffic.sh"
