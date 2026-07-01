@@ -5,7 +5,13 @@ apt-get update -y > /dev/null 2>&1
 apt-get install curl -y > /dev/null 2>&1
 echo "Installation de curl terminée."
 
-nombre_ues=400
+echo "Installation de mongodb..."
+curl -sL https://downloads.mongodb.com/compass/mongosh-2.2.5-linux-x64.tgz -o /tmp/mongosh.tgz
+tar -zxvf /tmp/mongosh.tgz -C /tmp/ > /dev/null 2>&1
+cp /tmp/mongosh-*-linux-x64/bin/mongosh /usr/local/bin/
+echo "Installation de mongodb terminée."
+
+nombre_ues=200
 NUM_GNBS=$(ls -1 /generated_gnbs/ | wc -l)
 
 echo "Nombre d'antennes gNB détectées : $NUM_GNBS"
@@ -41,19 +47,52 @@ done
 
 echo "Démarrage de la simulation..."
 
+get_closest_gnb_id() {
+  local imsi=$1
+  
+  mongosh "mongodb://db:27017/open5gs" --eval "
+    
+    const ue = db.subscribers.findOne({ imsi: '${imsi}' });
+    
+    if (ue) {
+      const closest = db.gnbs.aggregate([
+        {
+          \$addFields: {
+            distance: {
+              \$add: [
+                { \$pow: [{ \$subtract: ['\$location.lat', ue.position.latitude] }, 2] },
+                { \$pow: [{ \$subtract: ['\$location.lng', ue.position.longitude] }, 2] }
+              ]
+            }
+          }
+        },
+        { \$sort: { distance: 1 } },
+        { \$limit: 1 }
+      ]).toArray()[0];
+      
+      if (closest) print(closest.gnbId);
+    }
+  "
+}
+
+echo "Démarrage de la génération dynamique basée sur la localisation..."
+
 for i in $(seq 1 2 $nombre_ues); do
   SUFFIX=$(printf "%010d" $i)
   SUFFIX2=$(printf "%010d" $((i+1)))
   IMSI="imsi-20801$SUFFIX"
   IMSI2="imsi-20801$SUFFIX2"
   
-  GNB_ID=$(( ((i - 1) % NUM_GNBS) + 1 ))
-  GNB_ID2=$(( ((i) % NUM_GNBS) + 1 ))
+  GNB_ID=$(get_closest_gnb_id "20801$SUFFIX")
+  GNB_ID2=$(get_closest_gnb_id "20801$SUFFIX2")
+  
+  if [ -z "$GNB_ID" ]; then GNB_ID=1; fi
+  if [ -z "$GNB_ID2" ]; then GNB_ID2=1; fi
+  
   GNB_TARGET=${GNB_IPS[$GNB_ID]} 
   GNB_TARGET2=${GNB_IPS[$GNB_ID2]}
   
   sed -e "s/IMSI_PLACEHOLDER/$IMSI/g" -e "s/GNB_PLACEHOLDER/$GNB_TARGET/g" /config/ue-template.yaml > "/tmp/ue-${IMSI}.yaml"
-
   sed -e "s/IMSI_PLACEHOLDER/$IMSI2/g" -e "s/GNB_PLACEHOLDER/$GNB_TARGET2/g" /config/ue-template2.yaml > "/tmp/ue-${IMSI2}.yaml"
   
   /UERANSIM/nr-ue -c "/tmp/ue-${IMSI}.yaml" > "/tmp/logs-${IMSI}.txt" 2>&1 &

@@ -245,82 +245,6 @@ services:
     volumes:
       - ../logs:/var/log/open5gs
 
-  # gnb1:
-  #   container_name: gnb1
-  #   image: "ghcr.io/borjis131/gnb:v3.2.7"
-  #   command: "-c /UERANSIM/config/gnb1.yaml"
-  #   networks:
-  #     open5gs:
-  #       aliases:
-  #         - gnb1.ueransim.org
-  #   configs:
-  #     - source: gnb1_config
-  #       target: /UERANSIM/config/gnb1.yaml
-  #   depends_on:
-  #     - amf
-  #     - smf1
-  #     - smf2
-  #     - smf3
-  #     - pcf
-  #     - udr
-
-  # gnb2:
-  #   container_name: gnb2
-  #   image: "ghcr.io/borjis131/gnb:v3.2.7"
-  #   command: "-c /UERANSIM/config/gnb2.yaml"
-  #   networks:
-  #     open5gs:
-  #       aliases:
-  #         - gnb2.ueransim.org
-  #   configs:
-  #     - source: gnb2_config
-  #       target: /UERANSIM/config/gnb2.yaml
-  #   depends_on:
-  #     - amf
-  #     - smf1
-  #     - smf2
-  #     - smf3
-  #     - pcf
-  #     - udr
-
-  # gnb3:
-  #   container_name: gnb3
-  #   image: "ghcr.io/borjis131/gnb:v3.2.7"
-  #   command: "-c /UERANSIM/config/gnb3.yaml"
-  #   networks:
-  #     open5gs:
-  #       aliases:
-  #         - gnb3.ueransim.org
-  #   configs:
-  #     - source: gnb3_config
-  #       target: /UERANSIM/config/gnb3.yaml
-  #   depends_on:
-  #     - amf
-  #     - smf1
-  #     - smf2
-  #     - smf3
-  #     - pcf
-  #     - udr
-
-  # gnb4:
-  #   container_name: gnb4
-  #   image: "ghcr.io/borjis131/gnb:v3.2.7"
-  #   command: "-c /UERANSIM/config/gnb4.yaml"
-  #   networks:
-  #     open5gs:
-  #       aliases:
-  #         - gnb4.ueransim.org
-  #   configs:
-  #     - source: gnb4_config
-  #       target: /UERANSIM/config/gnb4.yaml
-  #   depends_on:
-  #     - amf
-  #     - smf1
-  #     - smf2
-  #     - smf3
-  #     - pcf
-  #     - udr
-
 # Prod version
   # webui:
   #   container_name: webui
@@ -421,11 +345,3 @@ configs:
     file: ../config-files/core/upf2.yaml
   upf3_config:
     file: ../config-files/core/upf3.yaml
-  # gnb1_config:
-  #   file: ../config-files/ran/gnb1.yaml
-  # gnb2_config:
-  #   file: ../config-files/ran/gnb2.yaml
-  # gnb3_config:
-  #   file: ../config-files/ran/gnb3.yaml
-  # gnb4_config:
-  #   file: ../config-files/ran/gnb4.yaml

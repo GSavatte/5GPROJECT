@@ -63,13 +63,21 @@ echo "Insertion des gNBs dans la base de données..."
 for i in $(seq 1 $NUM_GNBS); do
     GNB_NAME="gnb${i}"
     GNB_ID=$i
-    sudo docker exec -it db mongosh open5gs --eval '
-    db.gnbs.insertOne({
-        "gnbId": "'$GNB_ID'",
-        "name": "'$GNB_NAME'",
-        "location": { "lat": 48.117634, "lng": -1.636123 },
-        "supportedSlices": [{ "sst": 1, "sd": "000001" }, { "sst": 2, "sd": "000001" }, { "sst": 3, "sd": "000001" }],
-        "schema_version": 1
-    })'
 
+    SEED1=$((10#$(date +%N) + RANDOM))
+    SEED2=$((10#$(date +%N) + RANDOM))
+
+    POSX=$(awk -v base=48.117883 -v seed="$SEED1" 'BEGIN {srand(seed); printf "%.6f", base + ((rand() - 0.5) * 0.01)}')
+    POSY=$(awk -v base=-1.640991 -v seed="$SEED2" 'BEGIN {srand(seed); printf "%.6f", base + ((rand() - 0.5) * 0.02)}')
+
+    echo "Ajout de $GNB_NAME à la position ($POSX, $POSY)..."
+
+    sudo docker exec -i db mongosh open5gs --eval "
+    db.gnbs.insertOne({
+        \"gnbId\": \"$GNB_ID\",
+        \"name\": \"$GNB_NAME\",
+        \"location\": { \"lat\": $POSX, \"lng\": $POSY },
+        \"supportedSlices\": [{ \"sst\": 1, \"sd\": \"000001\" }, { \"sst\": 2, \"sd\": \"000001\" }, { \"sst\": 3, \"sd\": \"000001\" }],
+        \"schema_version\": 1
+    })"
 done
