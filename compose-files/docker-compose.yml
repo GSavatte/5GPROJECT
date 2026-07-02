@@ -13,6 +13,15 @@ services:
     ports:
       - "0.0.0.0:27017:27017/tcp"
 
+  db-seeder:
+    image: mongo:latest
+    container_name: db-seeder
+    volumes:
+      - ../utils/load_test:/config
+    command: mongosh "mongodb://db.open5gs.org/open5gs" /config/seed.js
+    networks:
+      - open5gs
+
   nrf:
     container_name: nrf
     image: "ghcr.io/borjis131/nrf:${OPEN5GS_VERSION}"

@@ -1,13 +1,5 @@
 services:
-  db-seeder:
-    image: mongo:latest
-    container_name: db-seeder
-    volumes:
-      - ../utils/load_test:/config
-    command: mongosh "mongodb://db.open5gs.org/open5gs" /config/seed.js
-    networks:
-      - open5gs
-
+  
   ue-loadtester:
     image: "ghcr.io/borjis131/ue:v3.2.7"
     container_name: ue-loadtester
@@ -16,9 +8,6 @@ services:
         soft: 65536
         hard: 65536
       nproc: 65536
-    depends_on:
-      db-seeder:
-        condition: service_completed_successfully
     volumes:
       - ../utils/load_test:/config
       - ../config-files/generated_gnbs:/generated_gnbs
