@@ -52,7 +52,7 @@ class MapCollection extends Component {
         {isLoading && <Spinner md />}
 
         {!isLoading && MapComponent && (
-          <div style={{ height: '80vh', width: '100%', borderRadius: '4px', overflow: 'hidden' }}>
+          <div style={{ height: '100vh', width: '100%', borderRadius: '4px', overflow: 'hidden' }}>
             <MapComponent 
               ues={subscribers.data} 
               gnbs={gnbs.data} 
