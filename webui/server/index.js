@@ -28,6 +28,8 @@ const secret = process.env.SECRET_KEY || 'change-me';
 const api = require('./routes');
 
 const Account = require('./models/account.js');
+const Subscriber = require('./models/subscriber');
+const Gnb = require('./models/gnb');
 
 co(function* () {
   yield app.prepare();
@@ -65,9 +67,15 @@ co(function* () {
   }
 
   const server = express();
+
+  server.set('etag', false);
+  server.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    next();
+  });
   
-  server.use(bodyParser.json());
-  server.use(bodyParser.urlencoded({ extended: true }));
+  server.use(bodyParser.json({ limit: '50mb' }));
+  server.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
   server.use(methodOverride());
 
   server.use(session({
@@ -89,6 +97,39 @@ co(function* () {
     req.db = db;
     next();
   })
+
+  server.post('/api/import-network', async (req, res) => {
+    try {
+      const { subscribers, gnbs } = req.body;
+      if (!subscribers || !gnbs) return res.status(400).json({ error: "Format invalide" });
+
+      const sanitizeData = (docs) => docs.map(doc => {
+        const { _id, __v, createdAt, updatedAt, ...cleanDoc } = doc;
+        return cleanDoc;
+      });
+
+      const cleanSubscribers = sanitizeData(subscribers);
+      const cleanGnbs = sanitizeData(gnbs);
+
+      console.log("🧹 Suppression des anciennes configurations en mode Raw...");
+      await mongoose.connection.db.collection('subscribers').deleteMany({});
+      await mongoose.connection.db.collection('gnbs').deleteMany({});
+
+      console.log(`📥 Importation de ${cleanSubscribers.length} UEs et ${cleanGnbs.length} gNBs...`);
+      
+      if (cleanSubscribers.length > 0) {
+        await mongoose.connection.db.collection('subscribers').insertMany(cleanSubscribers);
+      }
+      if (cleanGnbs.length > 0) {
+        await mongoose.connection.db.collection('gnbs').insertMany(cleanGnbs);
+      }
+
+      res.status(200).json({ message: "OK" });
+    } catch (error) {
+      console.error("❌ Erreur d'import :", error);
+      res.status(500).json({ error: "Erreur serveur" });
+    }
+  });
 
   server.use(csrf);
 

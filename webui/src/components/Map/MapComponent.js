@@ -44,6 +44,7 @@ const GNB_COLORS = [
 ];
 
 const MapComponent = ({ gnbs = [], ues = [] }) => {
+  let fileInput = null;
 
   const centerPosition = gnbs.length > 0 
     ? [gnbs[0].location.lat, gnbs[0].location.lng] 
@@ -60,11 +61,113 @@ const MapComponent = ({ gnbs = [], ues = [] }) => {
     }, gnbs[0]);
   };
 
+  const handleExportNetwork = () => {
+    const exportData = {
+      metadata: {
+        exportDate: new Date().toISOString(),
+        totalUEs: ues.length,
+        totalGNBs: gnbs.length,
+        description: "Snapshot des positions du réseau 5G"
+      },
+      gnbs: gnbs,
+      subscribers: ues
+    };
+
+    const jsonString = JSON.stringify(exportData, null, 2);
+    
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    
+    const downloadUrl = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    
+    const dateStr = new Date().toISOString().slice(0, 10);
+    link.download = `reseau_5g_${dateStr}.json`;
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(downloadUrl);
+  };
+
+  const handleImportNetwork = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const importedData = JSON.parse(e.target.result);
+
+        const response = await fetch('/api/import-network', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(importedData)
+        });
+
+        if (response.ok) {
+          alert("✅ Configuration importée avec succès dans la base de données ! Le script Bash va continuer.");
+        } else {
+          const errorData = await response.json();
+          alert(`❌ Erreur côté serveur : ${errorData.error}`);
+        }
+
+      } catch (error) {
+        alert("❌ Erreur : Le fichier JSON est invalide ou corrompu.");
+        console.error(error);
+      }
+      
+      event.target.value = null; 
+    };
+    reader.readAsText(file);
+  };
+
+
+
   return (
     <div style={{ height: '100%', width: '100%' }}>
       <Head>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" />
       </Head>
+
+      <input 
+        type="file" 
+        accept=".json" 
+        ref={(inputElement) => { fileInput = inputElement; }} 
+        onChange={handleImportNetwork} 
+        style={{ display: 'none' }} 
+      />
+
+      <div style={{ position: 'absolute', top: '80px', right: '20px', zIndex: 1000, display: 'flex', gap: '10px' }}>
+        {/* LE BOUTON D'IMPORT */}
+        <button 
+          onClick={() => {
+            if (fileInput) fileInput.click();
+          }}
+          style={{
+            backgroundColor: '#fff',
+            color: '#9e0606', border: 'none', padding: '12px 20px',
+            borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer',
+            border: '2px solid #9e0606',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
+          }}
+        >
+          Importer (JSON)
+        </button>
+
+        <button
+          onClick={handleExportNetwork}
+          style={{
+            backgroundColor: '#9e0606',
+            color: 'white', border: 'none', padding: '12px 20px',
+            borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
+          }}
+          >Exporter le réseau</button>
+      </div>
       
       <Map center={centerPosition} zoom={15} style={{ height: '100%', width: '100%' }}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
@@ -79,6 +182,7 @@ const MapComponent = ({ gnbs = [], ues = [] }) => {
               key={`gnb-${gnb._id || index}`} 
               position={[gnb.location.lat, gnb.location.lng]}
               icon={colorIcon('#9e0606')}
+              zIndexOffset={1000}
             >
               <Popup>
                 <strong>{gnb.name || `gNB ${gnb.gnbId}`}</strong>
