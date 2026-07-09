@@ -18,10 +18,10 @@ rm -f $CONFIG_DIR/*.yaml
 echo "services:" > $COMPOSE_FILE
 
 for i in $(seq 1 $NUM_GNBS); do
-    HOSTNAME="gnb${i}"
+    HOSTNAME=$(printf "gnb%02d" $i)
     CONFIG_FILE="${CONFIG_DIR}/${HOSTNAME}.yaml"
     
-    sed -e "s/GNB_ID_PLACEHOLDER/$i/g" "$PROJECT_ROOT/config-files/templates/gnb-template.yaml" > $CONFIG_FILE
+    sed -e "s/GNB_ID_PLACEHOLDER/$i/g" -e "s/GNB_HOSTNAME_PLACEHOLDER/${HOSTNAME}/g" "$PROJECT_ROOT/config-files/templates/gnb-template.yaml" > $CONFIG_FILE 
     
     cat <<EOF >> $COMPOSE_FILE
     $HOSTNAME:
@@ -42,7 +42,7 @@ echo "" >> $COMPOSE_FILE
 echo "configs:" >> $COMPOSE_FILE
 
 for i in $(seq 1 $NUM_GNBS); do
-    GNB_NAME="gnb${i}"
+    GNB_NAME=$(printf "gnb%02d" $i)
 
     cat << EOF >> $COMPOSE_FILE
     ${GNB_NAME}_config:

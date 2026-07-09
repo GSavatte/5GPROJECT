@@ -93,7 +93,7 @@ function optimizeGnbPlacement(nb_gnbs, uePositions) {
     for (let c = 0; c < nb_gnbs; c++) {
         db.gnbs.insertOne({
             "gnbId": `${c + 1}`,
-            "name": `gnb${c + 1}`,
+            "name": `gnb${(c + 1).toString().padStart(2, '0')}`,
             "location": { "lat": centroids[c].latitude, "lng": centroids[c].longitude },
             "supportedSlices": [{ "sst": 1, "sd": "000001" }, { "sst": 2, "sd": "000001" }, { "sst": 3, "sd": "000001" }],
             "schema_version": 1
@@ -147,7 +147,7 @@ function optimizeGnbPlacement(nb_gnbs, uePositions) {
         for (let c = 0; c < nb_gnbs; c++) {
             db.gnbs.insertOne({
                 "gnbId": `${c + 1}`,
-                "name": `gnb${c + 1}`,
+                "name": `gnb${(c + 1).toString().padStart(2, '0')}`,
                 "location": { "lat": centroids[c].latitude, "lng": centroids[c].longitude },
                 "supportedSlices": [{ "sst": 1, "sd": "000001" }, { "sst": 2, "sd": "000001" }, { "sst": 3, "sd": "000001" }],
                 "schema_version": 1

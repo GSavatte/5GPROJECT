@@ -10,9 +10,9 @@ amfConfigs:
   - address: 'amf.open5gs.org'
     port: 38412
 
-linkIp: gnbGNB_ID_PLACEHOLDER.ueransim.org
-ngapIp: gnbGNB_ID_PLACEHOLDER.ueransim.org
-gtpIp: gnbGNB_ID_PLACEHOLDER.ueransim.org
+linkIp: GNB_HOSTNAME_PLACEHOLDER.ueransim.org
+ngapIp: GNB_HOSTNAME_PLACEHOLDER.ueransim.org
+gtpIp: GNB_HOSTNAME_PLACEHOLDER.ueransim.org
 
 slices:
   - sst: 1

@@ -25,22 +25,24 @@ const colorIcon = (colorHex) => {
 };
 
 const GNB_COLORS = [
-  '#e6194b',
-  '#3cb44b', 
-  '#ffe119', 
-  '#4363d8', 
-  '#f58231', 
-  '#911eb4', 
-  '#42d4f4', 
-  '#f032e6', 
-  '#bcf60c', 
-  '#fabed4', 
-  '#008080',
-  '#e6beff',
-  '#9a6324',
-  '#fffac8',
-  '#800000',
-  '#aaffc3'
+  '#73bf69',
+  '#fade2a', 
+  '#5794f2', 
+  '#ff9830', 
+  '#f2495c', 
+  '#b877d9', 
+  '#37872d', 
+  '#e0b400', 
+  '#1f60c4', 
+  '#fa6400', 
+  '#c4162a',
+  '#8f3bb8',
+  '#c8f2c2',
+  '#fff899',
+  '#c0d8ff',
+  '#ffcb7d',
+  '#ffa6b0',
+  '#deb6f2'
 ];
 
 const MapComponent = ({ gnbs = [], ues = [] }) => {
@@ -174,8 +176,6 @@ const MapComponent = ({ gnbs = [], ues = [] }) => {
 
         {/* 1. Rendu des gNBs */}
         {gnbs.map((gnb, index) => {
-          const colorIndex = gnb.gnbId ? (parseInt(gnb.gnbId, 10) % GNB_COLORS.length) : index % GNB_COLORS.length;
-          const gnbColor = GNB_COLORS[colorIndex];
 
           return (
             <Marker 
@@ -202,7 +202,7 @@ const MapComponent = ({ gnbs = [], ues = [] }) => {
 
           let ueColor = 'gray'; 
           if (attachedGnb) {
-            const colorIndex = parseInt(attachedGnb.gnbId, 10) % GNB_COLORS.length;
+            const colorIndex = (parseInt(attachedGnb.gnbId, 10) - 1) % GNB_COLORS.length;
             ueColor = GNB_COLORS[colorIndex];
           }
 
