@@ -1,109 +1,37 @@
 #!/bin/bash
-echo "Installation de curl..."
-sleep 0.5
-apt-get update -y > /dev/null 2>&1
-apt-get install curl -y > /dev/null 2>&1
-echo "Installation de curl terminée."
 
-echo "Installation de mongodb..."
-curl -sL https://downloads.mongodb.com/compass/mongosh-2.2.5-linux-x64.tgz -o /tmp/mongosh.tgz
-tar -zxvf /tmp/mongosh.tgz -C /tmp/ > /dev/null 2>&1
-cp /tmp/mongosh-*-linux-x64/bin/mongosh /usr/local/bin/
-echo "Installation de mongodb terminée."
+SINK_IP=$(getent hosts internet-sim | awk '{ print $1 }')
 
-nombre_ues=200
-NUM_GNBS=$(ls -1 /generated_gnbs/ | wc -l)
+if [ -z "$SINK_IP" ]; then
+    echo "Erreur : Impossible de trouver l'IP du conteneur internet-sim."
+    echo "Le conteneur est-il bien allumé et sur le même réseau ?"
+    exit 1
+fi
 
-echo "Nombre d'antennes gNB détectées : $NUM_GNBS"
+echo "Cible trouvée à l'adresse : $SINK_IP"
+echo "Lancement de la tempête de trafic sur 100 UEs..."
 
-echo "Base de données prête. Résolution des antennes..."
+INTERFACES=$(ip link show | grep -o 'uesimtun[0-9]*')
 
-declare -A GNB_IPS
-for id in $(seq 1 $NUM_GNBS); do
-  
-  HOSTNAME="gnb${id}" 
-  IP=""
-  MAX_RETRIES=15
-  COUNT=0
-  
-  while [ -z "$IP" ] && [ $COUNT -lt $MAX_RETRIES ]; do
-    IP=$(getent hosts $HOSTNAME | awk '{ print $1 }' | head -n 1)
-    
-    if [ -z "$IP" ]; then
-       echo "⏳ Attente du réseau pour $HOSTNAME (Tentative $((COUNT+1))/$MAX_RETRIES)..."
-       sleep 1
-       COUNT=$((COUNT+1))
-    fi
-  done
-  
-  if [ -z "$IP" ]; then
-     echo "❌ IP définitivement introuvable pour $HOSTNAME après $MAX_RETRIES secondes."
-     GNB_IPS[$id]=$HOSTNAME
-  else
-     echo "✅ Antenne $HOSTNAME trouvée sur l'IP : $IP"
-     GNB_IPS[$id]=$IP
-  fi
+for INTERFACE in $INTERFACES; do
+
+    MAX_WAIT=20
+    WAIT_COUNT=0
+
+    while ! ip addr show $INTERFACE | grep -q "inet "; do
+        sleep 0.5
+        WAIT_COUNT=$((WAIT_COUNT+1))
+        
+        if [ $WAIT_COUNT -ge $MAX_WAIT ]; then
+            echo "⚠️ Timeout : L'interface $INTERFACE n'a pas reçu d'IP à temps."
+            break
+        fi
+    done
+
+    sleep 0.$((RANDOM % 5))
+
+    curl --interface $INTERFACE -o /dev/null http://$SINK_IP/1GB.bin &
 done
 
-echo "Démarrage de la simulation..."
-
-get_closest_gnb_id() {
-  local imsi=$1
-  
-  mongosh "mongodb://db:27017/open5gs" --eval "
-    
-    const ue = db.subscribers.findOne({ imsi: '${imsi}' });
-    
-    if (ue) {
-      const closest = db.gnbs.aggregate([
-        {
-          \$addFields: {
-            distance: {
-              \$add: [
-                { \$pow: [{ \$subtract: ['\$location.lat', ue.position.latitude] }, 2] },
-                { \$pow: [{ \$subtract: ['\$location.lng', ue.position.longitude] }, 2] }
-              ]
-            }
-          }
-        },
-        { \$sort: { distance: 1 } },
-        { \$limit: 1 }
-      ]).toArray()[0];
-      
-      if (closest) print(closest.gnbId);
-    }
-  "
-}
-
-echo "Démarrage de la génération dynamique basée sur la localisation..."
-
-for i in $(seq 1 2 $nombre_ues); do
-  SUFFIX=$(printf "%010d" $i)
-  SUFFIX2=$(printf "%010d" $((i+1)))
-  IMSI="imsi-20801$SUFFIX"
-  IMSI2="imsi-20801$SUFFIX2"
-  
-  GNB_ID=$(get_closest_gnb_id "20801$SUFFIX")
-  GNB_ID2=$(get_closest_gnb_id "20801$SUFFIX2")
-  
-  if [ -z "$GNB_ID" ]; then GNB_ID=1; fi
-  if [ -z "$GNB_ID2" ]; then GNB_ID2=1; fi
-  
-  GNB_TARGET=${GNB_IPS[$GNB_ID]} 
-  GNB_TARGET2=${GNB_IPS[$GNB_ID2]}
-  
-  sed -e "s/IMSI_PLACEHOLDER/$IMSI/g" -e "s/GNB_PLACEHOLDER/$GNB_TARGET/g" /config/ue-template.yaml > "/tmp/ue-${IMSI}.yaml"
-  sed -e "s/IMSI_PLACEHOLDER/$IMSI2/g" -e "s/GNB_PLACEHOLDER/$GNB_TARGET2/g" /config/ue-template2.yaml > "/tmp/ue-${IMSI2}.yaml"
-  
-  /UERANSIM/nr-ue -c "/tmp/ue-${IMSI}.yaml" > "/tmp/logs-${IMSI}.txt" 2>&1 &
-  /UERANSIM/nr-ue -c "/tmp/ue-${IMSI2}.yaml" > "/tmp/logs-${IMSI2}.txt" 2>&1 &
-  
-  sleep 0.1
-done
-
-echo "Toutes les requêtes d'attachement on été envoyées aux gNBs. Création d'un fichier test d'1Gb..."
-
-dd if=/dev/zero of=/config/1GB.bin bs=1M count=1000
-sleep 2
-
-bash -c "bash /config/generate_traffic.sh"
+echo "Les 100 téléchargements sont en cours en arrière-plan !"
+wait

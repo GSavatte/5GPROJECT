@@ -50,8 +50,7 @@ sleep 5
 
 echo "Réseau 5G déployé avec succès."
 
-if [[ "$IMPORT_MODE" == "y" || "$IMPORT_MODE" == "Y" ]]; then
-else
+if [[ "$IMPORT_MODE" != "y" && "$IMPORT_MODE" != "Y" ]]; then
     read -p "Voulez-vous lancer l'interface web permettant de gérer les subscribers, accéder à la carte du réseau etc... ? (y/n) " launch
     if [[ "$launch" == "y" || "$launch" == "Y" ]]; then
         echo "Lancement de l'interface web..."
@@ -69,10 +68,12 @@ if [[ "$monitor" == "y" || "$monitor" == "Y" ]]; then
     echo "Monitoring lancé. Accédez-y via http://localhost:3000 (login: admin, password: admin)"
 fi
 
-read -p "Voulez-vous lancer un test de charge avec 400 UEs et générer du trafic vers le conteneur internet-sim ? (y/n) " loadtest
+
+read -p "Voulez-vous lancer un test de charge sur les UEs ? (y/n) " loadtest
+
 if [[ "$loadtest" == "y" || "$loadtest" == "Y" ]]; then
-    echo "Lancement du test de charge..."
-    docker compose --env-file=.env -f compose-files/docker-compose.loadtest.yaml up -d ue-loadtester internet-sim
-    sleep 2
-    echo "Test de charge lancé. Les logs des UEs sont disponibles dans le conteneur loadtest."
+    docker compose --env-file=.env -f compose-files/docker-compose.loadtest.yaml up -d internet-sim
+    sleep 0.5
 fi
+
+docker compose --env-file=.env -f compose-files/docker-compose.loadtest.yaml run --rm -e NB_UES="$NB_UES" -e loadtest="$loadtest" ue-loadtester internet-sim
