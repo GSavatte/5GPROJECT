@@ -11,7 +11,7 @@ services:
     volumes:
       - ../utils/load_test:/config
       - ../config-files/generated_gnbs:/generated_gnbs
-    entrypoint: ["/bin/bash", "/config/start_load_test.sh"]
+    entrypoint: ["/bin/bash", "/config/start_ues.sh"]
     cap_add:
       - NET_ADMIN
     devices:
