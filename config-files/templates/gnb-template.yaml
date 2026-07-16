@@ -19,5 +19,7 @@ slices:
     sd: 0x000001
   - sst: 2
     sd: 0x000001
+  - sst: 3
+    sd: 0x000001
 
 ignoreStreamIds: true

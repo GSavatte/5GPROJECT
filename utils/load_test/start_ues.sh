@@ -77,27 +77,36 @@ get_closest_gnb_id() {
 
 echo "Démarrage de la génération dynamique basée sur la localisation..."
 
-for i in $(seq 1 2 $nombre_ues); do
+for i in $(seq 1 3 $nombre_ues); do
   SUFFIX=$(printf "%010d" $i)
   SUFFIX2=$(printf "%010d" $((i+1)))
+  SUFFIX3=$(printf "%010d" $((i+2)))
   IMSI="imsi-20801$SUFFIX"
   IMSI2="imsi-20801$SUFFIX2"
+  IMSI3="imsi-20801$SUFFIX3"
   
   GNB_ID=$(get_closest_gnb_id "20801$SUFFIX")
   GNB_ID2=$(get_closest_gnb_id "20801$SUFFIX2")
+  GNB_ID3=$(get_closest_gnb_id "20801$SUFFIX3")
   
   if [ -z "$GNB_ID" ]; then GNB_ID=1; fi
   if [ -z "$GNB_ID2" ]; then GNB_ID2=1; fi
+  if [ -z "$GNB_ID3" ]; then GNB_ID3=1; fi
   
   GNB_TARGET=${GNB_IPS[$GNB_ID]} 
   GNB_TARGET2=${GNB_IPS[$GNB_ID2]}
+  GNB_TARGET3=${GNB_IPS[$GNB_ID3]}
   
   sed -e "s/IMSI_PLACEHOLDER/$IMSI/g" -e "s/GNB_PLACEHOLDER/$GNB_TARGET/g" /config/ue-template.yaml > "/tmp/ue-${IMSI}.yaml"
   sed -e "s/IMSI_PLACEHOLDER/$IMSI2/g" -e "s/GNB_PLACEHOLDER/$GNB_TARGET2/g" /config/ue-template2.yaml > "/tmp/ue-${IMSI2}.yaml"
+  sed -e "s/IMSI_PLACEHOLDER/$IMSI3/g" -e "s/GNB_PLACEHOLDER/$GNB_TARGET3/g" /config/ue-template3.yaml > "/tmp/ue-${IMSI3}.yaml"
   
   /UERANSIM/nr-ue -c "/tmp/ue-${IMSI}.yaml" > "/tmp/logs-${IMSI}.txt" 2>&1 &
-  sleep 0.2
+  sleep 0.15
   /UERANSIM/nr-ue -c "/tmp/ue-${IMSI2}.yaml" > "/tmp/logs-${IMSI2}.txt" 2>&1 &
+  sleep 0.15
+  /UERANSIM/nr-ue -c "/tmp/ue-${IMSI3}.yaml" > "/tmp/logs-${IMSI3}.txt" 2>&1 &
+  sleep 0.1
   
   sleep 0.2
 done
