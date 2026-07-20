@@ -76,4 +76,26 @@ if [[ "$loadtest" == "y" || "$loadtest" == "Y" ]]; then
     sleep 0.5
 fi
 
-docker compose --env-file=.env -f compose-files/docker-compose.loadtest.yaml run --rm -e NB_UES="$NB_UES" -e loadtest="$loadtest" ue-loadtester internet-sim
+docker compose --env-file=.env -f compose-files/docker-compose.loadtest.yaml run -d --name ue-loadtester --rm -e NB_UES="$NB_UES" -e loadtest="$loadtest" ue-loadtester
+
+mkdir -p ./shared_flags
+FLAG_FILE="./shared_flags/redeploy.flag"
+REDEPLOY_SCRIPT="./utils/scripts/re-deploy.sh"
+
+rm -f "$FLAG_FILE"
+
+echo "========================================================"
+echo "✅ Réseau 5G déployé !"
+echo "Le contrôleur SDN est actif. En attente de mises à jour depuis la WebUI..."
+echo "Laissez ce terminal ouvert pour maintenir le simulateur. (Ctrl+C pour quitter puis executez stop.sh pour un arrêt propre et complet)"
+echo "========================================================"
+
+while true; do
+    if [[ -f "$FLAG_FILE" ]]; then
+        echo "Signal de redéploiement détecté. Exécution du script de redéploiement..."
+        rm -f "$FLAG_FILE"
+        bash "$REDEPLOY_SCRIPT"
+        echo "Redéploiement terminé. Reprise de l'attente de signal..."
+    fi
+    sleep 2
+done

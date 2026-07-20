@@ -5,6 +5,7 @@ const port = process.env.PORT || 9999;
 
 const co = require('co');
 const next = require('next');
+const fs = require('fs');
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
@@ -98,6 +99,15 @@ co(function* () {
     next();
   })
 
+  server.get('/api/status', (req, res) => {
+    try {
+      const statusData = fs.readFileSync('/shared_flags/status.json', 'utf8');
+      res.status(200).json(JSON.parse(statusData));
+    } catch (error) {
+      res.status(200).json({ status: "ready" });
+    }
+  });
+
   server.post('/api/import-network', async (req, res) => {
     try {
       const { subscribers, gnbs } = req.body;
@@ -124,7 +134,16 @@ co(function* () {
         await mongoose.connection.db.collection('gnbs').insertMany(cleanGnbs);
       }
 
-      res.status(200).json({ message: "OK" });
+      console.log("Seding redeploy signal to start.sh...");
+
+      try {
+        fs.writeFileSync('/shared_flags/redeploy.flag', 'go');
+      } catch (err) {
+        console.error("❌ Erreur lors de la création du fichier de signalisation :", err);
+        return res.status(500).json({ error: "Erreur serveur lors de la création du fichier de signalisation" });
+      }
+
+      res.status(200).json({ message: "Base de données mise à jour. Redémarrage physique en cours..." });
     } catch (error) {
       console.error("❌ Erreur d'import :", error);
       res.status(500).json({ error: "Erreur serveur" });

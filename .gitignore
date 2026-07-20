@@ -41,3 +41,5 @@ compose-files/docker-compose.gnbs.yaml
 utils/load_test/1GB.bin
 config-files/generated_gnbs/
 webui/package-lock.json
+
+shared_flags/

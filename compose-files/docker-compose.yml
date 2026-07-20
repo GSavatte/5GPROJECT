@@ -294,6 +294,7 @@ services:
     user: root
     volumes:
       - ../webui:/usr/local/src/webui
+      - ../shared_flags:/shared_flags
     entrypoint: ["npm"]
     command: ["run", "dev"]
     networks:
