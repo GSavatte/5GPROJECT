@@ -1,5 +1,23 @@
 #!/bin/bash
 
+if [[ "$1" == "--rebuild" ]]; then
+    echo "⚠️ Attention : Reconstruction complète des images sans utiliser le cache..."
+    
+    echo "-> Build du cœur de réseau et WebUI..."
+    docker compose -f compose-files/docker-compose.yml --env-file=.env build --no-cache
+    
+    echo "-> Build des antennes (gNBs)..."
+    docker compose -f compose-files/docker-compose.gnbs.yaml build --no-cache
+    
+    echo "-> Build du monitoring..."
+    docker compose -f compose-files/docker-compose.monitoring.yaml build --no-cache
+    
+    echo "-> Build des outils de test de charge..."
+    docker compose -f compose-files/docker-compose.loadtest.yaml build --no-cache
+    
+    echo "✅ Reconstruction terminée avec succès."
+    echo "--------------------------------------------------------"
+fi
 
 echo "Démarrage du cœur de réseau..."
 docker compose -f compose-files/docker-compose.yml --env-file=.env up -d amf ausf bsf db nrf nssf pcf smf1 smf2 smf3 upf1 upf2 upf3 udm udr
