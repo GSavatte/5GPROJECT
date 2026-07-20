@@ -295,6 +295,7 @@ services:
     volumes:
       - ../webui:/usr/local/src/webui
       - ../shared_flags:/shared_flags
+      - /usr/local/src/webui/node_modules
     entrypoint: ["npm"]
     command: ["run", "dev"]
     networks:

@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 ARG OPEN5GS_VERSION="v2.7.6"
 WORKDIR /usr/local/src/webui
 COPY webui/package*.json ./
-RUN npm ci
+RUN npm install --legacy-peer-deps
 COPY webui .
 
 ENTRYPOINT ["npm"]
@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 ARG OPEN5GS_VERSION="v2.7.6"
 WORKDIR /webui
 COPY webui/package*.json ./
-RUN npm ci
+RUN npm install --legacy-peer-deps
 COPY webui .
 RUN npm run build
 
@@ -46,7 +46,7 @@ COPY --from=builder /webui/.babelrc ./
 
 RUN chown -R open5gs:open5gs /usr/local/src/webui
 
-RUN npm ci --only=production
+RUN npm install --legacy-peer-deps --only=production
 
 ENV DB_URI="mongodb://db/open5gs"
 ENV HOSTNAME="0.0.0.0"

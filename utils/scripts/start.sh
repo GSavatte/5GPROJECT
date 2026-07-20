@@ -2,7 +2,7 @@
 
 
 echo "Démarrage du cœur de réseau..."
-docker compose --env-file=.env -f compose-files/docker-compose.yml up -d amf ausf bsf db nrf nssf pcf smf1 smf2 smf3 upf1 upf2 upf3 udm udr
+docker compose -f compose-files/docker-compose.yml --env-file=.env up -d amf ausf bsf db nrf nssf pcf smf1 smf2 smf3 upf1 upf2 upf3 udm udr
 sleep 2
 # sudo bash utils/scripts/clear.sh
 
@@ -14,7 +14,7 @@ read -p "Voulez-vous importer une configuration existante depuis la WebUI ? (y/n
 
 if [[ "$IMPORT_MODE" == "y" || "$IMPORT_MODE" == "Y" ]]; then
     echo "Lancement de la WebUI..."
-    docker compose --env-file=.env -f compose-files/docker-compose.yml up -d webui
+    docker compose -f compose-files/docker-compose.yml --env-file=.env up -d webui
     sleep 2
     echo "WebUI lancée. Accédez-y via http://localhost:9999 pour importer votre configuration."
     echo "⏳ En attente de l'insertion des données dans MongoDB..."
@@ -32,7 +32,7 @@ else
     read -p "Combien de gNBs voulez-vous générer ? " NB_GNBS
 
     echo "Démarrage du seeder avec $NB_UES UEs et $NB_GNBS gNBs..."
-    docker compose --env-file=.env -f compose-files/docker-compose.yml run --rm -e NB_UES="$NB_UES" -e NB_GNBS="$NB_GNBS" db-seeder
+    docker compose -f compose-files/docker-compose.yml --env-file=.env run --rm -e NB_UES="$NB_UES" -e NB_GNBS="$NB_GNBS" db-seeder
     sleep 2
 fi
 

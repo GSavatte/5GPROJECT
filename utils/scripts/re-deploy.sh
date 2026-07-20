@@ -25,6 +25,6 @@ docker compose -f "$ROOT/compose-files/docker-compose.gnbs.yaml" up -d
 sleep 5
 
 echo "Deploying $NB_UES UEs..."
-docker compose --env-file="$ROOT/.env" -f "$ROOT/compose-files/docker-compose.loadtest.yaml" run -d --name ue-loadtester --rm -e NB_UES="$NB_UES" -e loadtest="n" ue-loadtester
+docker compose -f "$ROOT/compose-files/docker-compose.loadtest.yaml" --env-file="$ROOT/.env" run -d --name ue-loadtester --rm -e NB_UES="$NB_UES" -e loadtest="n" ue-loadtester
 echo '{"status": "ready"}' > "$STATUS_FILE"
 echo "5G Network re-deployed successfully!"
