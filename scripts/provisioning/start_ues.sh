@@ -121,9 +121,9 @@ for i in $(seq 1 3 $nombre_ues); do
   SEARCH_LIST2=$(build_search_list "$GNB_TARGET2")
   SEARCH_LIST3=$(build_search_list "$GNB_TARGET3")
   
-  sed -e "s/IMSI_PLACEHOLDER/$IMSI/g" -e "s/GNB_PLACEHOLDER/$SEARCH_LIST1/g" /config/ue-template.yaml > "/tmp/ue-${IMSI}.yaml"
-  sed -e "s/IMSI_PLACEHOLDER/$IMSI2/g" -e "s/GNB_PLACEHOLDER/$SEARCH_LIST2/g" /config/ue-template2.yaml > "/tmp/ue-${IMSI2}.yaml"
-  sed -e "s/IMSI_PLACEHOLDER/$IMSI3/g" -e "s/GNB_PLACEHOLDER/$SEARCH_LIST3/g" /config/ue-template3.yaml > "/tmp/ue-${IMSI3}.yaml"
+  sed -e "s/IMSI_PLACEHOLDER/$IMSI/g" -e "s/GNB_PLACEHOLDER/$SEARCH_LIST1/g" /ue_templates/ue-template.yaml > "/tmp/ue-${IMSI}.yaml"
+  sed -e "s/IMSI_PLACEHOLDER/$IMSI2/g" -e "s/GNB_PLACEHOLDER/$SEARCH_LIST2/g" /ue_templates/ue-template2.yaml > "/tmp/ue-${IMSI2}.yaml"
+  sed -e "s/IMSI_PLACEHOLDER/$IMSI3/g" -e "s/GNB_PLACEHOLDER/$SEARCH_LIST3/g" /ue_templates/ue-template3.yaml > "/tmp/ue-${IMSI3}.yaml"
   
   /UERANSIM/nr-ue -c "/tmp/ue-${IMSI}.yaml" > "/tmp/logs-${IMSI}.txt" 2>&1 &
   sleep 0.15
@@ -140,9 +140,9 @@ echo "Toutes les UEs ont été lancées et rattachées aux antennes gNB."
 sleep 2
 
 if [ "${loadtest:-"n"}" = "y" ]; then
-  dd if=/dev/zero of=/config/1GB.bin bs=1M count=1000
+  dd if=/dev/zero of=/testing/1GB.bin bs=1M count=1000
   echo "Lancement du test de charge..."
-  bash /config/start_load_test.sh
+  bash /testing/start_load_test.sh
 fi
 
 tail -f /dev/null

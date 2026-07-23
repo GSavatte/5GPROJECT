@@ -18,7 +18,7 @@ NB_UES=$(docker exec -i db mongosh open5gs --quiet --eval "db.subscribers.countD
 
 echo "Re-deploying the 5G Core Network with $NB_GNBS gNBs and $NB_UES UEs..."
 
-sudo bash "$ROOT/utils/scripts/start_gnbs.sh" "$NB_GNBS"
+sudo bash "$ROOT/scripts/start_gnbs.sh" "$NB_GNBS"
 
 echo "Starting gNBs..."
 docker compose -f "$ROOT/compose-files/docker-compose.gnbs.yaml" up -d

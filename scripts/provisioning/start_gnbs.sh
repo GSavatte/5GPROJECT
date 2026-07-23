@@ -1,14 +1,14 @@
 #!/bin/bash
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$SCRIPT_DIR/../.."
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 NUM_GNBS=$1
 
 echo "Génération des fichiers de configuration pour $NUM_GNBS antennes gNB..."
 
 COMPOSE_FILE="$PROJECT_ROOT/compose-files/docker-compose.gnbs.yaml"
-CONFIG_DIR="$PROJECT_ROOT/config-files/generated_gnbs"
+CONFIG_DIR="$PROJECT_ROOT/config-files/gnb/generated"
 
 mkdir -p $CONFIG_DIR
 
@@ -21,7 +21,7 @@ for i in $(seq 1 $NUM_GNBS); do
     HOSTNAME=$(printf "gnb%02d" $i)
     CONFIG_FILE="${CONFIG_DIR}/${HOSTNAME}.yaml"
     
-    sed -e "s/GNB_ID_PLACEHOLDER/$i/g" -e "s/GNB_HOSTNAME_PLACEHOLDER/${HOSTNAME}/g" "$PROJECT_ROOT/config-files/templates/gnb-template.yaml" > $CONFIG_FILE 
+    sed -e "s/GNB_ID_PLACEHOLDER/$i/g" -e "s/GNB_HOSTNAME_PLACEHOLDER/${HOSTNAME}/g" "$PROJECT_ROOT/config-files/gnb/templates/gnb-template.yaml" > $CONFIG_FILE 
     
     cat <<EOF >> $COMPOSE_FILE
     $HOSTNAME:

@@ -1,6 +1,3 @@
-//const { execSync } = require('child_process');
-
-const MAX_ITER = 100;
 const nb_ues = parseInt(process.env.NB_UES);
 const nb_gnbs = parseInt(process.env.NB_GNBS);
 
@@ -83,110 +80,18 @@ for (let i = 1; i <= nb_ues; i += 3) {
 
 console.log(`\nPlacement aléatoire de ${nb_gnbs} gNBs...`);
 for (let c = 0; c < nb_gnbs; c++) {
-    // On sélectionne un point aléatoire en se basant sur les positions générées pour s'assurer de rester dans la même zone
     const randomUe = uePositions[Math.floor(Math.random() * uePositions.length)];
-    
+
     db.gnbs.insertOne({
         "gnbId": `${c + 1}`,
         "name": `gnb${(c + 1).toString().padStart(2, '0')}`,
-        "location": { 
-            "lat": randomUe.latitude + 0.0002, 
-            "lng": randomUe.longitude + 0.0002 
+        "location": {
+            "lat": randomUe.latitude + 0.0002,
+            "lng": randomUe.longitude + 0.0002
         },
         "supportedSlices": [{ "sst": 1, "sd": "000001" }, { "sst": 2, "sd": "000001" }, { "sst": 3, "sd": "000001" }],
         "schema_version": 1
     });
 }
 
-console.log(`\n✅ Initialisation terminée avec succès.`);
-
-function optimizeGnbPlacement(nb_gnbs, uePositions) {
-    console.log(`\nPréparation de l'optimisation K-Means...`);
-
-    let centroids = [];
-    for (let i = 0; i < nb_gnbs; i++) {
-        const randomUe = uePositions[Math.floor(Math.random() * uePositions.length)];
-        
-        centroids.push({
-            latitude: randomUe.latitude + 0.0002,
-            longitude: randomUe.longitude + 0.0002
-        });
-    }
-
-    const getSqDistance = (p1, p2) => Math.pow(p1.latitude - p2.latitude, 2) + Math.pow(p1.longitude - p2.longitude, 2);
-
-    // --- ÉTAPE 0 ---
-    console.log(`\nÉTAPE 0 : Injection des positions aléatoires initiales...`);
-    db.gnbs.deleteMany({});
-    for (let c = 0; c < nb_gnbs; c++) {
-        db.gnbs.insertOne({
-            "gnbId": `${c + 1}`,
-            "name": `gnb${(c + 1).toString().padStart(2, '0')}`,
-            "location": { "lat": centroids[c].latitude, "lng": centroids[c].longitude },
-            "supportedSlices": [{ "sst": 1, "sd": "000001" }, { "sst": 2, "sd": "000001" }, { "sst": 3, "sd": "000001" }],
-            "schema_version": 1
-        });
-    }
-    
-    // pauseManuelle(0);
-
-    let converged = false;
-    let iterations = 0;
-
-    while (!converged && iterations < MAX_ITER) {
-        iterations++;
-        let clusters = Array.from({ length: nb_gnbs }, () => []);
-
-        for (let ue of uePositions) {
-            let minC = 0;
-            let minDist = getSqDistance(ue, centroids[0]);
-            for (let c = 1; c < nb_gnbs; c++) {
-                let d = getSqDistance(ue, centroids[c]);
-                if (d < minDist) {
-                    minDist = d;
-                    minC = c;
-                }
-            }
-            clusters[minC].push(ue);
-        }
-        
-        let moved = false;
-        
-        for (let c = 0; c < nb_gnbs; c++) {
-            if (clusters[c].length === 0) continue;
-            let sumLat = 0, sumLng = 0;
-            
-            for (let p of clusters[c]) {
-                sumLat += p.latitude;
-                sumLng += p.longitude;
-            }
-            
-            let newLat = sumLat / clusters[c].length;
-            let newLng = sumLng / clusters[c].length;
-            
-            if (Math.abs(centroids[c].latitude - newLat) > 1e-6 || Math.abs(centroids[c].longitude - newLng) > 1e-6) {
-                moved = true;
-            }
-
-            centroids[c] = { latitude: newLat, longitude: newLng };
-        }
-
-        db.gnbs.deleteMany({});
-        for (let c = 0; c < nb_gnbs; c++) {
-            db.gnbs.insertOne({
-                "gnbId": `${c + 1}`,
-                "name": `gnb${(c + 1).toString().padStart(2, '0')}`,
-                "location": { "lat": centroids[c].latitude, "lng": centroids[c].longitude },
-                "supportedSlices": [{ "sst": 1, "sd": "000001" }, { "sst": 2, "sd": "000001" }, { "sst": 3, "sd": "000001" }],
-                "schema_version": 1
-            });
-        }
-
-        if (!moved) {
-            converged = true;
-            console.log(`\n✅ Convergence atteinte ! Les antennes ont trouvé leur position optimale en ${iterations} itérations.`);
-        } else {
-            // pauseManuelle(iterations);
-        }
-    }
-}
+console.log(`\n✅ Initialisation terminée avec succès. Lance optimize_gnb_placement.js quand tu veux pour optimiser le placement des gNB via K-means.`);

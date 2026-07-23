@@ -9,9 +9,11 @@ services:
         hard: 65536
       nproc: 65536
     volumes:
-      - ../utils/load_test:/config
-      - ../config-files/generated_gnbs:/generated_gnbs
-    entrypoint: ["/bin/bash", "/config/start_ues.sh"]
+      - ../scripts/testing:/testing
+      - ../config-files/ue/templates:/ue_templates
+      - ../config-files/gnb/generated:/generated_gnbs
+      - ../scripts/provisioning:/provisioning
+    entrypoint: ["/bin/bash", "/provisioning/start_ues.sh"]
     cap_add:
       - NET_ADMIN
     devices:
@@ -26,7 +28,7 @@ services:
     networks:
       - open5gs
     volumes:
-      - ../utils/load_test:/usr/share/nginx/html
+      - ../scripts/testing:/usr/share/nginx/html
 
 networks:
   open5gs:

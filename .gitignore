@@ -38,8 +38,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 compose-files/docker-compose.gnbs.yaml
-utils/load_test/1GB.bin
-config-files/generated_gnbs/
+scripts/testing/1GB.bin
+config-files/gnb/generated/
 webui/package-lock.json
 
 shared_flags/

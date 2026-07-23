@@ -11,7 +11,7 @@ echo "==================================================="
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$SCRIPT_DIR/../.."
 
-NUM_GNBS=$(ls -1 $PROJECT_ROOT/config-files/generated_gnbs/ | wc -l)
+NUM_GNBS=$(ls -1 $PROJECT_ROOT/config-files/gnb/generated/ | wc -l)
 echo "Nombre d'antennes gNB détectées : $NUM_GNBS"
 echo "Base de données prête. Résolution des antennes..."
 

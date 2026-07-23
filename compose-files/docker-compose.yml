@@ -17,8 +17,8 @@ services:
     image: mongo:latest
     container_name: db-seeder
     volumes:
-      - ../utils/load_test:/config
-    command: mongosh "mongodb://db.open5gs.org/open5gs" /config/seed.js
+      - ../scripts/provisioning:/config
+    command: mongosh "mongodb://db.open5gs.org/open5gs" /config/init_network.js
     networks:
       - open5gs
 

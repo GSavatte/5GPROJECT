@@ -59,7 +59,7 @@ fi
 
 
 
-sudo bash utils/scripts/start_gnbs.sh "$NB_GNBS"
+sudo bash scripts/provisioning/start_gnbs.sh "$NB_GNBS"
 
 echo "Démarrage des antennes (gNBs)..."
 
@@ -98,7 +98,7 @@ docker compose --env-file=.env -f compose-files/docker-compose.loadtest.yaml run
 
 mkdir -p ./shared_flags
 FLAG_FILE="./shared_flags/redeploy.flag"
-REDEPLOY_SCRIPT="./utils/scripts/re-deploy.sh"
+REDEPLOY_SCRIPT="./scripts/lifecycle/re-deploy.sh"
 
 rm -f "$FLAG_FILE"
 
