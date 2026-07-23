@@ -32,6 +32,8 @@ const Account = require('./models/account.js');
 const Subscriber = require('./models/subscriber');
 const Gnb = require('./models/gnb');
 
+const { startMobilityEngine } = require('./mobilityEngine.js');
+
 co(function* () {
   yield app.prepare();
 
@@ -44,6 +46,9 @@ co(function* () {
     useUnifiedTopology: true,
     serverSelectionTimeoutMS: 1000
     /* other options */
+  }).then(() => {
+    console.log("Connected to MongoDB");
+    startMobilityEngine(mongoose.connection.db);
   })
 
   if (dev) {
@@ -149,6 +154,43 @@ co(function* () {
       res.status(500).json({ error: "Erreur serveur" });
     }
   });
+
+  server.post('/api/set-destination', async (req, res) => {
+    const { imsi, lat, lng } = req.body;
+    console.log(`📍 Ordre de déplacement reçu pour ${imsi} vers [${lat}, ${lng}]`);
+
+    try {
+      const db = mongoose.connection.db;
+      const collection = db.collection('subscribers');
+
+      await collection.updateOne(
+        { imsi: imsi },
+        { 
+          $set: { 
+            "destination.latitude": lat,
+            "destination.longitude": lng,
+            isMoving: true 
+          } 
+        }
+      );
+
+      return res.status(200).json({ success: true });
+    } catch (error) {
+      console.error('Erreur API destination:', error);
+      return res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  server.get('/api/ues-live', async (req, res) => {
+    try {
+      const db = mongoose.connection.db;
+      const ues = await db.collection('subscribers').find({}).toArray();
+      return res.status(200).json(ues);
+    } catch (error) {
+      console.error('Erreur API ues-live:', error);
+      return res.status(500).json({ error: 'Erreur serveur' });
+    }
+  })
 
   server.use(csrf);
 

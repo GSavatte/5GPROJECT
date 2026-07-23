@@ -35,11 +35,36 @@ class MapComponent extends Component {
     super(props);
     
     this.state = {
-      isDeploying: false
+      isDeploying: false,
+      selectedUeImsi: null,
+      liveUes: props.ues || []
     };
 
     this.fileInput = null;
+    this.refreshInterval = null;
   }
+
+  componentDidMount() {
+    this.refreshInterval = setInterval(this.fetchLiveUes, 1000);
+  }
+
+  componentWillUnmount() {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+    }
+  }
+
+  fetchLiveUes = async () => {
+    try {
+      const response = await fetch('/api/ues-live');
+      if (response.ok) {
+        const data = await response.json();
+        this.setState({ liveUes: data }); 
+      }
+    } catch (error) {
+      console.error("Erreur de récupération des positions :", error);
+    }
+  };
 
   findClosestGnb = (ueLat, ueLng) => {
     const { gnbs = [] } = this.props;
@@ -135,16 +160,40 @@ class MapComponent extends Component {
     reader.readAsText(file);
   };
 
+  handleMapClick = async (e) => {
+    const { selectedUeImsi } = this.state;
+    
+    if (!selectedUeImsi) return;
+
+    const { lat, lng } = e.latlng;
+
+    try {
+      const response = await fetch('/api/set-destination', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imsi: selectedUeImsi, lat, lng })
+      });
+
+      if (response.ok) {
+        this.setState({ selectedUeImsi: null });
+      } else {
+        console.error("Erreur du serveur lors de l'enregistrement de la destination");
+      }
+    } catch (error) {
+      console.error("Erreur d'envoi des coordonnées :", error);
+    }
+  };
+
   render() {
-    const { gnbs = [], ues = [] } = this.props;
-    const { isDeploying } = this.state;
+    const { gnbs = [] } = this.props;
+    const { isDeploying, selectedUeImsi, liveUes } = this.state;
 
     const centerPosition = gnbs.length > 0 
       ? [gnbs[0].location.lat, gnbs[0].location.lng] 
       : [48.116074, -1.63841];
 
     return (
-      <div style={{ height: '100%', width: '100%' }}>
+      <div style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
         <Head>
           <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" />
         </Head>
@@ -157,12 +206,23 @@ class MapComponent extends Component {
           style={{ display: 'none' }} 
         />
 
-        <div style={{ position: 'absolute', top: '80px', right: '20px', zIndex: 1000, display: 'flex', gap: '10px' }}>
+        {/* NOUVEAU : Bandeau d'instructions pour la mobilité */}
+        <div style={{ 
+          padding: '12px', 
+          backgroundColor: selectedUeImsi ? '#e6f3ff' : '#f8f9fa', 
+          borderBottom: '1px solid #ddd',
+          textAlign: 'center',
+          fontWeight: '500',
+          transition: 'background-color 0.3s'
+        }}>
+          {selectedUeImsi 
+            ? <span>📍 UE <strong>{selectedUeImsi}</strong> sélectionné. Cliquez n'importe où sur la carte pour définir sa destination.</span> 
+            : <span>🖱️ Cliquez sur un marqueur UE pour le déplacer.</span>}
+        </div>
 
+        <div style={{ position: 'absolute', top: '80px', right: '20px', zIndex: 1000, display: 'flex', gap: '10px' }}>
           <button 
-            onClick={() => {
-              if (this.fileInput && !isDeploying) this.fileInput.click();
-            }}
+            onClick={() => { if (this.fileInput && !isDeploying) this.fileInput.click(); }}
             disabled={isDeploying}
             style={{
               backgroundColor: '#fff',
@@ -191,7 +251,13 @@ class MapComponent extends Component {
           </button>
         </div>
         
-        <Map center={centerPosition} zoom={15} style={{ height: '100%', width: '100%' }}>
+        {/* NOUVEAU : Ajout de onClick={this.handleMapClick} */}
+        <Map 
+          center={centerPosition} 
+          zoom={15} 
+          style={{ height: '100%', width: '100%', flexGrow: 1 }}
+          onClick={this.handleMapClick}
+        >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
           {gnbs.map((gnb, index) => {
@@ -209,25 +275,29 @@ class MapComponent extends Component {
             );
           })}
 
-          {ues.map((ue, index) => {
+          {liveUes.map((ue, index) => {
             const lat = (ue.position && ue.position.latitude) ? ue.position.latitude : undefined;
             const lng = (ue.position && ue.position.longitude) ? ue.position.longitude : undefined;
 
             if (lat === undefined || lng === undefined) return null;
 
             const attachedGnb = this.findClosestGnb(lat, lng);
-
             let ueColor = 'gray'; 
+            
             if (attachedGnb) {
               const colorIndex = (parseInt(attachedGnb.gnbId, 10) - 1) % GNB_COLORS.length;
               ueColor = GNB_COLORS[colorIndex];
             }
 
+            // On ajoute une petite indication visuelle si l'UE est sélectionné
+            const isSelected = ue.imsi === selectedUeImsi;
+
             return (
               <Marker 
                 key={`ue-${ue._id || index}`}
                 position={[lat, lng]}
-                icon={colorIcon(ueColor)}
+                icon={colorIcon(isSelected ? '#000000' : ueColor)} // Devient noir si sélectionné
+                onClick={() => this.setState({ selectedUeImsi: ue.imsi })} // NOUVEAU : Sélection au clic
               >
                 <Popup>
                   <div style={{ color: '#333', minWidth: '150px' }}>
@@ -249,11 +319,10 @@ class MapComponent extends Component {
               </Marker>
             );
           })}
-
         </Map>
       </div>
     );
-  };
+  }
 };
 
 export default MapComponent;

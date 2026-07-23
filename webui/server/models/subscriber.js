@@ -16,6 +16,22 @@ const Subscriber = new Schema({
     longitude: { $type: Number, required: true, default: -1.63841 }
   },
 
+  destination: {
+    latitude: { $type: Number, required: true, default: 48.116074 },
+    longitude: { $type: Number, required: true, default: -1.63841 }
+  },
+
+  speed: { $type: Number, default: 5 },
+  isMoving: { $type: Boolean, default: false },
+
+  current_gnb: { $type: String, default: '' },
+  target_gnb: { $type: String, default: '' },
+  handover_status: { 
+    $type: String, 
+    enum: ['idle', 'pending', 'completed'], 
+    default: 'idle' 
+  },
+
   imsi: { $type: String, unique: true, required: true },
 
   msisdn: [ String ],
