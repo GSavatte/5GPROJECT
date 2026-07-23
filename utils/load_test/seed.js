@@ -9,16 +9,6 @@ if (isNaN(nb_ues) || nb_ues <= 0 || isNaN(nb_gnbs) || nb_gnbs <= 0) {
     process.exit(1);
 }
 
-// const pauseManuelle = (iteration) => {
-//     console.log(`\nItération ${iteration} prête ! Actualisez la WebUI.`);
-//     console.log(`Appuie sur [ENTRÉE] dans ce terminal pour continuer...`);
-//     try {
-//         execSync('sh -c "read dummy < /dev/tty"', { stdio: 'inherit' });
-//     } catch (e) {
-//         console.log("⚠️ Le terminal n'est pas interactif (peut-être lancé avec -d). La pause a été ignorée.");
-//     }
-// };
-
 console.log(`\nNettoyage de la base de données...`);
 db.subscribers.deleteMany({});
 db.gnbs.deleteMany({});
@@ -91,7 +81,24 @@ for (let i = 1; i <= nb_ues; i += 3) {
     }
 }
 
-optimizeGnbPlacement(nb_gnbs, uePositions);
+console.log(`\nPlacement aléatoire de ${nb_gnbs} gNBs...`);
+for (let c = 0; c < nb_gnbs; c++) {
+    // On sélectionne un point aléatoire en se basant sur les positions générées pour s'assurer de rester dans la même zone
+    const randomUe = uePositions[Math.floor(Math.random() * uePositions.length)];
+    
+    db.gnbs.insertOne({
+        "gnbId": `${c + 1}`,
+        "name": `gnb${(c + 1).toString().padStart(2, '0')}`,
+        "location": { 
+            "lat": randomUe.latitude + 0.0002, 
+            "lng": randomUe.longitude + 0.0002 
+        },
+        "supportedSlices": [{ "sst": 1, "sd": "000001" }, { "sst": 2, "sd": "000001" }, { "sst": 3, "sd": "000001" }],
+        "schema_version": 1
+    });
+}
+
+console.log(`\n✅ Initialisation terminée avec succès.`);
 
 function optimizeGnbPlacement(nb_gnbs, uePositions) {
     console.log(`\nPréparation de l'optimisation K-Means...`);
