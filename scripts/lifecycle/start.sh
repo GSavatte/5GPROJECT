@@ -87,14 +87,19 @@ if [[ "$monitor" == "y" || "$monitor" == "Y" ]]; then
 fi
 
 
-read -p "Voulez-vous lancer un test de charge sur les UEs ? (y/n) " loadtest
+read -p "Combien d'UEs voulez-vous impliquer dans le test de charge ? (Entrez 0 pour aucun) : " LOADTEST_COUNT
 
-if [[ "$loadtest" == "y" || "$loadtest" == "Y" ]]; then
+if ! [[ "$LOADTEST_COUNT" =~ ^[0-9]+$ ]]; then
+    echo "Erreur : Veuillez entrer un nombre valide."
+    exit 1
+fi
+
+if [ "$LOADTEST_COUNT" -gt 0 ]; then
     docker compose --env-file=.env -f compose-files/docker-compose.loadtest.yaml up -d internet-sim
     sleep 0.5
 fi
 
-docker compose --env-file=.env -f compose-files/docker-compose.loadtest.yaml run -d --name ue-loadtester --rm -e NB_UES="$NB_UES" -e loadtest="$loadtest" ue-loadtester
+docker compose --env-file=.env -f compose-files/docker-compose.loadtest.yaml run -d --name ue-loadtester --rm -e NB_UES="$NB_UES" -e LOADTEST_COUNT="$LOADTEST_COUNT" ue-loadtester
 
 mkdir -p ./shared_flags
 FLAG_FILE="./shared_flags/redeploy.flag"

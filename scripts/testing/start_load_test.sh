@@ -9,9 +9,10 @@ if [ -z "$SINK_IP" ]; then
 fi
 
 echo "Cible trouvée à l'adresse : $SINK_IP"
-echo "Lancement de la tempête de trafic sur 100 UEs..."
+echo "Lancement de la tempête de trafic sur $LOADTEST_COUNT UEs..."
 
-INTERFACES=$(ip link show | grep -o 'uesimtun[0-9]*')
+# On filtre les interfaces et on ne garde QUE le nombre spécifié par l'utilisateur
+INTERFACES=$(ip link show | grep -o 'uesimtun[0-9]*' | head -n "$LOADTEST_COUNT")
 
 for INTERFACE in $INTERFACES; do
 
@@ -33,5 +34,5 @@ for INTERFACE in $INTERFACES; do
     curl --interface $INTERFACE -o /dev/null http://$SINK_IP/1GB.bin &
 done
 
-echo "Les 100 téléchargements sont en cours en arrière-plan !"
+echo "Les $LOADTEST_COUNT téléchargements sont en cours en arrière-plan !"
 wait

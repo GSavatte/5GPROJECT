@@ -139,9 +139,9 @@ echo "Toutes les UEs ont été lancées et rattachées aux antennes gNB."
 
 sleep 2
 
-if [ "${loadtest:-"n"}" = "y" ]; then
+if [ "${LOADTEST_COUNT:-0}" -gt 0 ]; then
   dd if=/dev/zero of=/testing/1GB.bin bs=1M count=1000
-  echo "Lancement du test de charge..."
+  echo "Lancement du test de charge sur $LOADTEST_COUNT UEs..."
   bash /testing/start_load_test.sh
 fi
 
