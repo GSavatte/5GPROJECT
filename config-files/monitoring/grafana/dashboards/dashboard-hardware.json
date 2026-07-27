@@ -5,8 +5,8 @@
     "name": "adgd7h7",
     "namespace": "default",
     "uid": "fc765e0f-043b-4779-9dce-58df39520ac3",
-    "resourceVersion": "1782481584172010",
-    "generation": 1,
+    "resourceVersion": "1785141568870005",
+    "generation": 3,
     "creationTimestamp": "2026-06-26T13:46:24Z",
     "labels": {
       "grafana.app/deprecatedInternalID": "3351719873196032"
@@ -15,9 +15,11 @@
       "grafana.app/createdBy": "access-policy:service",
       "grafana.app/managedBy": "classic-file-provisioning",
       "grafana.app/managerId": "Full Dashboard",
-      "grafana.app/sourceChecksum": "6b4f0d9b9c23a95eed14d632663f3af7",
+      "grafana.app/sourceChecksum": "8c7252d26166c32fb31e6de2538b6e02",
       "grafana.app/sourcePath": "/etc/grafana/provisioning/dashboards/dashboard-hardware.json",
-      "grafana.app/sourceTimestamp": "1782481541000",
+      "grafana.app/sourceTimestamp": "1785141563000",
+      "grafana.app/updatedBy": "access-policy:service",
+      "grafana.app/updatedTimestamp": "2026-07-27T08:39:28Z",
       "grafana.app/folder": ""
     }
   },
@@ -420,6 +422,125 @@
                 "showPercentChange": false,
                 "textMode": "auto",
                 "wideLayout": true
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-15": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(rate(container_cpu_usage_seconds_total{container_label_com_docker_compose_service!=\"\"}[1m])) by (container_label_com_docker_compose_service)",
+                        "legendFormat": "__auto",
+                        "range": true
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 15,
+          "links": [],
+          "title": "CPU Usage per services",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "percentunit"
+                },
+                "overrides": []
+              },
+              "options": {
+                "annotations": {
+                  "clustering": -1,
+                  "multiLane": false
+                },
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                }
               }
             },
             "version": "13.0.2"
@@ -1211,8 +1332,8 @@
                 "kind": "ElementReference",
                 "name": "panel-2"
               },
-              "height": 15,
-              "width": 8,
+              "height": 13,
+              "width": 12,
               "x": 0,
               "y": 0
             }
@@ -1224,9 +1345,9 @@
                 "kind": "ElementReference",
                 "name": "panel-9"
               },
-              "height": 15,
-              "width": 8,
-              "x": 8,
+              "height": 13,
+              "width": 12,
+              "x": 12,
               "y": 0
             }
           },
@@ -1237,10 +1358,23 @@
                 "kind": "ElementReference",
                 "name": "panel-12"
               },
-              "height": 15,
-              "width": 8,
-              "x": 16,
-              "y": 0
+              "height": 11,
+              "width": 12,
+              "x": 0,
+              "y": 13
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-15"
+              },
+              "height": 11,
+              "width": 12,
+              "x": 12,
+              "y": 13
             }
           },
           {
@@ -1253,7 +1387,7 @@
               "height": 7,
               "width": 3,
               "x": 0,
-              "y": 15
+              "y": 24
             }
           },
           {
@@ -1266,7 +1400,7 @@
               "height": 7,
               "width": 3,
               "x": 3,
-              "y": 15
+              "y": 24
             }
           },
           {
@@ -1279,7 +1413,7 @@
               "height": 7,
               "width": 3,
               "x": 6,
-              "y": 15
+              "y": 24
             }
           },
           {
@@ -1292,7 +1426,7 @@
               "height": 7,
               "width": 9,
               "x": 9,
-              "y": 15
+              "y": 24
             }
           },
           {
@@ -1305,7 +1439,7 @@
               "height": 7,
               "width": 3,
               "x": 18,
-              "y": 15
+              "y": 24
             }
           },
           {
@@ -1318,7 +1452,7 @@
               "height": 7,
               "width": 3,
               "x": 21,
-              "y": 15
+              "y": 24
             }
           },
           {
@@ -1331,7 +1465,7 @@
               "height": 8,
               "width": 12,
               "x": 0,
-              "y": 22
+              "y": 31
             }
           },
           {
@@ -1344,7 +1478,7 @@
               "height": 8,
               "width": 4,
               "x": 12,
-              "y": 22
+              "y": 31
             }
           },
           {
@@ -1357,7 +1491,7 @@
               "height": 8,
               "width": 8,
               "x": 16,
-              "y": 22
+              "y": 31
             }
           }
         ]
