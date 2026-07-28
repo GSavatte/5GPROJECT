@@ -254,29 +254,6 @@ services:
     volumes:
       - ../logs:/var/log/open5gs
 
-# Prod version
-  # webui:
-  #   container_name: webui
-  #   build:
-  #     context: .
-  #     dockerfile: ./images/webui/Dockerfile
-  #     args:
-  #       - OPEN5GS_VERSION=${OPEN5GS_VERSION}
-  #       - NODE_VERSION=${NODE_VERSION}
-  #   environment:
-  #     - DB_URI=mongodb://db.open5gs.org/open5gs
-  #     - PORT=9999
-  #     - HOSTNAME=0.0.0.0
-  #   networks:
-  #     open5gs:
-  #       aliases:
-  #         - webui.open5gs.org
-  #   depends_on:
-  #     - db
-  #   ports:
-  #     - "9999:9999/tcp"
-
-# Dev version
   webui:
     container_name: webui
     build:
