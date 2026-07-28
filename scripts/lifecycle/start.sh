@@ -1,20 +1,57 @@
 #!/bin/bash
 
-if [[ "$1" == "--rebuild" ]]; then
+# ==============================================================================
+# PARSING DES ARGUMENTS
+# ==============================================================================
+# Chaque option, si fournie, court-circuite le prompt interactif correspondant.
+# Sans aucun flag, le script se comporte exactement comme avant (tout interactif).
+#
+# Options disponibles :
+#   --rebuild                Reconstruit toutes les images sans cache
+#   --import                 Importe la config depuis la WebUI (saute le prompt)
+#   --no-import               Génère via seeder plutôt que d'importer (saute le prompt)
+#   --nb-gnbs=N               Nombre de gNBs à générer (mode --no-import uniquement)
+#   --nb-ues=N                Nombre d'UEs à générer (mode --no-import uniquement)
+#   --webui / --no-webui      Lance ou non la WebUI (saute le prompt post-génération)
+#   --monitoring / --no-monitoring   Lance ou non le monitoring (saute le prompt)
+#   --loadtest-count=N        Nombre d'UEs pour le test de charge (0 = aucun, saute le prompt)
+# ==============================================================================
+
+REBUILD=false
+
+for arg in "$@"; do
+    case $arg in
+        --rebuild) REBUILD=true ;;
+        --import) IMPORT_MODE="y" ;;
+        --no-import) IMPORT_MODE="n" ;;
+        --nb-gnbs=*) NB_GNBS="${arg#*=}" ;;
+        --nb-ues=*) NB_UES="${arg#*=}" ;;
+        --webui) launch="y" ;;
+        --no-webui) launch="n" ;;
+        --monitoring) monitor="y" ;;
+        --no-monitoring) monitor="n" ;;
+        --loadtest-count=*) LOADTEST_COUNT="${arg#*=}" ;;
+        *)
+            echo "⚠️ Option inconnue ignorée : $arg"
+            ;;
+    esac
+done
+
+if [[ "$REBUILD" == "true" ]]; then
     echo "⚠️ Attention : Reconstruction complète des images sans utiliser le cache..."
-    
+
     echo "-> Build du cœur de réseau et WebUI..."
     docker compose -f compose-files/docker-compose.yml --env-file=.env build --no-cache
-    
+
     echo "-> Build des antennes (gNBs)..."
     docker compose -f compose-files/docker-compose.gnbs.yaml build --no-cache
-    
+
     echo "-> Build du monitoring..."
     docker compose -f compose-files/docker-compose.monitoring.yaml build --no-cache
-    
+
     echo "-> Build des outils de test de charge..."
     docker compose -f compose-files/docker-compose.loadtest.yaml build --no-cache
-    
+
     echo "✅ Reconstruction terminée avec succès."
     echo "--------------------------------------------------------"
 fi
@@ -27,7 +64,9 @@ sleep 2
 
 
 
-read -p "Voulez-vous importer une configuration existante depuis la WebUI ? (y/n) " IMPORT_MODE
+if [ -z "$IMPORT_MODE" ]; then
+    read -p "Voulez-vous importer une configuration existante depuis la WebUI ? (y/n) " IMPORT_MODE
+fi
 
 
 if [[ "$IMPORT_MODE" == "y" || "$IMPORT_MODE" == "Y" ]]; then
@@ -36,7 +75,7 @@ if [[ "$IMPORT_MODE" == "y" || "$IMPORT_MODE" == "Y" ]]; then
     sleep 2
     echo "WebUI lancée. Accédez-y via http://localhost:9999 pour importer votre configuration."
     echo "⏳ En attente de l'insertion des données dans MongoDB..."
-    
+
     NB_GNBS=0
     while [ -z "$NB_GNBS" ] || [ "$NB_GNBS" -eq 0 ]; do
         sleep 3
@@ -46,8 +85,12 @@ if [[ "$IMPORT_MODE" == "y" || "$IMPORT_MODE" == "Y" ]]; then
     echo "✅ Données importées avec succès depuis la WebUI. Nombre d'antennes gNB détectées : $NB_GNBS"
 
 else
-    read -p "Combien d'UEs voulez-vous générer ? " NB_UES
-    read -p "Combien de gNBs voulez-vous générer ? " NB_GNBS
+    if [ -z "$NB_UES" ]; then
+        read -p "Combien d'UEs voulez-vous générer ? " NB_UES
+    fi
+    if [ -z "$NB_GNBS" ]; then
+        read -p "Combien de gNBs voulez-vous générer ? " NB_GNBS
+    fi
 
     echo "Démarrage du seeder avec $NB_UES UEs et $NB_GNBS gNBs..."
     docker compose -f compose-files/docker-compose.yml --env-file=.env run --rm -e NB_UES="$NB_UES" -e NB_GNBS="$NB_GNBS" db-seeder
@@ -69,7 +112,9 @@ sleep 5
 echo "Réseau 5G déployé avec succès."
 
 if [[ "$IMPORT_MODE" != "y" && "$IMPORT_MODE" != "Y" ]]; then
-    read -p "Voulez-vous lancer l'interface web permettant de gérer les subscribers, accéder à la carte du réseau etc... ? (y/n) " launch
+    if [ -z "$launch" ]; then
+        read -p "Voulez-vous lancer l'interface web permettant de gérer les subscribers, accéder à la carte du réseau etc... ? (y/n) " launch
+    fi
     if [[ "$launch" == "y" || "$launch" == "Y" ]]; then
         echo "Lancement de l'interface web..."
         docker compose --env-file=.env -f compose-files/docker-compose.yml up -d webui
@@ -78,16 +123,20 @@ if [[ "$IMPORT_MODE" != "y" && "$IMPORT_MODE" != "Y" ]]; then
     fi
 fi
 
-read -p "Voulez-vous lancer le monitoring du réseau 5G ? (y/n) " monitor
+if [ -z "$monitor" ]; then
+    read -p "Voulez-vous lancer le monitoring du réseau 5G ? (y/n) " monitor
+fi
 if [[ "$monitor" == "y" || "$monitor" == "Y" ]]; then
     echo "Lancement du monitoring..."
-    docker compose --env-file=.env -f compose-files/docker-compose.monitoring.yaml up -d 
+    docker compose --env-file=.env -f compose-files/docker-compose.monitoring.yaml up -d
     sleep 2
     echo "Monitoring lancé. Accédez-y via http://localhost:3000 (login: admin, password: admin)"
 fi
 
 
-read -p "Combien d'UEs voulez-vous impliquer dans le test de charge ? (Entrez 0 pour aucun) : " LOADTEST_COUNT
+if [ -z "$LOADTEST_COUNT" ]; then
+    read -p "Combien d'UEs voulez-vous impliquer dans le test de charge ? (Entrez 0 pour aucun) : " LOADTEST_COUNT
+fi
 
 if ! [[ "$LOADTEST_COUNT" =~ ^[0-9]+$ ]]; then
     echo "Erreur : Veuillez entrer un nombre valide."
