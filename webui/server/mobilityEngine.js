@@ -1,5 +1,5 @@
-const TICK_RATE = 1000;
-const HYSTERESIS = 0.0005;
+const TICK_RATE = parseInt(process.env.TICK_RATE) || 1000; // Default to 1000 ms if not set
+const HYSTERESIS = parseFloat(process.env.HYSTERESIS) || 0.0005;
 
 export function startMobilityEngine(db){
     console.log("Starting mobility engine...");

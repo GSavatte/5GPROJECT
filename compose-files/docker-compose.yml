@@ -291,6 +291,8 @@ services:
       - PORT=9999
       - HOSTNAME=0.0.0.0
       - NODE_ENV=dev
+      - TICK_RATE=${TICK_RATE}
+      - HYSTERESIS=${HYSTERESIS}
     user: root
     volumes:
       - ../webui:/usr/local/src/webui
