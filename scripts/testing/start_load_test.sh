@@ -3,15 +3,14 @@
 SINK_IP=$(getent hosts internet-sim | awk '{ print $1 }')
 
 if [ -z "$SINK_IP" ]; then
-    echo "Erreur : Impossible de trouver l'IP du conteneur internet-sim."
-    echo "Le conteneur est-il bien allumé et sur le même réseau ?"
+    echo "[ERROR] Unable to find the IP of the internet-sim container."
+    echo "[INFO] Please ensure that the container is running and on the same network."
     exit 1
 fi
 
-echo "Cible trouvée à l'adresse : $SINK_IP"
-echo "Lancement de la tempête de trafic sur $LOADTEST_COUNT UEs..."
+echo "[INFO] Target found at address : $SINK_IP"
+echo "[INFO] Starting the traffic storm on $LOADTEST_COUNT UEs..."
 
-# On filtre les interfaces et on ne garde QUE le nombre spécifié par l'utilisateur
 INTERFACES=$(ip link show | grep -o 'uesimtun[0-9]*' | head -n "$LOADTEST_COUNT")
 
 for INTERFACE in $INTERFACES; do
@@ -24,7 +23,7 @@ for INTERFACE in $INTERFACES; do
         WAIT_COUNT=$((WAIT_COUNT+1))
         
         if [ $WAIT_COUNT -ge $MAX_WAIT ]; then
-            echo "⚠️ Timeout : L'interface $INTERFACE n'a pas reçu d'IP à temps."
+            echo "[WARN] Timeout : Interface $INTERFACE did not get an IP address after $MAX_WAIT seconds. Skipping..."
             break
         fi
     done
@@ -34,5 +33,5 @@ for INTERFACE in $INTERFACES; do
     curl --interface $INTERFACE -o /dev/null http://$SINK_IP/1GB.bin &
 done
 
-echo "Les $LOADTEST_COUNT téléchargements sont en cours en arrière-plan !"
+echo "[INFO] Traffic storm initiated on $LOADTEST_COUNT UEs. Monitor the load test in the logs of the ue-loadtester container."
 wait

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Arrêt complet du réseau 5G et de tous les conteneurs associés..."
+echo "[INFO] Stopping the entire 5G network and all associated containers..."
 
 docker stop ue-loadtester >/dev/null 2>&1
 docker rm -f ue-loadtester >/dev/null 2>&1
@@ -16,5 +16,4 @@ if [ -f shared_flags/sdn-controller.pid ]; then
     rm -f shared_flags/sdn-controller.pid
 fi
 
-echo "Tous les conteneurs associés au réseau ont été stoppés."
-
+echo "[INFO] All containers associated with the network have been stopped."

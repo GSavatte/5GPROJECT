@@ -1,19 +1,19 @@
 #!/bin/bash
 
 echo "==================================================="
-echo "📡 Démarrage du contrôleur SDN (Mobilité UERANSIM) "
+echo "[INFO] Starting the mobility controller for UE handovers..."
 echo "==================================================="
 
 # ------------------------------------------------------------------------------
-# PHASE 1 : INITIALISATION ET RÉSOLUTION DNS
+# PHASE 1: INITIALIZATION AND DNS RESOLUTION
 # ------------------------------------------------------------------------------
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$SCRIPT_DIR/../.."
 
 NUM_GNBS=$(ls -1 $PROJECT_ROOT/config-files/gnb/generated/ | wc -l)
-echo "Nombre d'antennes gNB détectées : $NUM_GNBS"
-echo "Base de données prête. Résolution des antennes..."
+echo "[INFO] Number of detected gNBs: $NUM_GNBS"
+echo "[INFO] Database ready. Resolving antennas..."
 
 declare -A GNB_HOSTS
 
@@ -28,22 +28,22 @@ for id in $(seq 1 $NUM_GNBS); do
     RESOLVED=$(docker exec -i ue-loadtester getent hosts "$FQDN" | awk '{ print $1 }' | tr -d '\r' | head -n 1)
 
     if [ -z "$RESOLVED" ]; then
-       echo "⏳ Attente du réseau pour $HOSTNAME (Tentative $((COUNT+1))/$MAX_RETRIES)..."
+       echo "[INFO] Waiting for the network for $HOSTNAME (Attempt $((COUNT+1))/$MAX_RETRIES)..."
        sleep 1
        COUNT=$((COUNT+1))
     fi
   done
 
   if [ -z "$RESOLVED" ]; then
-     echo "❌ DNS introuvable pour $HOSTNAME après $MAX_RETRIES secondes."
+     echo "[ERROR] DNS not found for $HOSTNAME after $MAX_RETRIES seconds."
      GNB_HOSTS[$id]=$FQDN
   else
-     echo "✅ Antenne $HOSTNAME joignable via : $FQDN (IP actuelle : $RESOLVED)"
+     echo "[INFO] Antenna $HOSTNAME reachable via : $FQDN (Current IP : $RESOLVED)"
      GNB_HOSTS[$id]=$FQDN
   fi
 done
 
-echo "🚀 Initialisation réseau terminée. En attente de mouvements..."
+echo "[INFO] Network initialization completed. Waiting for movements..."
 echo "---------------------------------------------------"
 
 
@@ -64,11 +64,11 @@ while true; do
             TARGET_HOSTNAME=$(printf "gnb%02d" $TARGET_GNB_ID)
 
             if [ -z "$TARGET_HOST" ]; then
-                echo "⚠️  Erreur : Le gNB ID '$TARGET_GNB_ID' n'a pas de hostname enregistré. Handover ignoré pour $IMSI."
+                echo "[WARNING] Error: The gNB ID '$TARGET_GNB_ID' has no registered hostname. Handover ignored for $IMSI."
                 continue
             fi
 
-            echo "🔄 Bascule de $IMSI vers $TARGET_HOSTNAME (ID: $TARGET_GNB_ID - Host: $TARGET_HOST)..."
+            echo "[INFO] Switching $IMSI to $TARGET_HOSTNAME (ID: $TARGET_GNB_ID - Host: $TARGET_HOST)..."
 
             NEW_SEARCH_LIST="$TARGET_HOST"
 
@@ -92,7 +92,7 @@ while true; do
                 );
             " >/dev/null 2>&1
 
-            echo "   ✅ $IMSI redéployé avec succès sur $TARGET_HOSTNAME."
+            echo "[INFO] Target UE $IMSI redeployed successfully on $TARGET_HOSTNAME."
         done
         echo "---------------------------------------------------"
     fi

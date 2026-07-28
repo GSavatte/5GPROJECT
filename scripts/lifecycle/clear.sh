@@ -1,5 +1,5 @@
-echo "Nettoyage de la base de données MongoDB..."
-echo "Suppression des subscribers..."
+echo "Cleaning up the database..."
+echo "Deleting subscribers..."
 sudo docker exec -it db mongosh open5gs --eval "db.subscribers.deleteMany({})"
-echo "Suppression des gNBs..."
+echo "Deleting gNBs..."
 sudo docker exec -it db mongosh open5gs --eval "db.gnbs.deleteMany({})"

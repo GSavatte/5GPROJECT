@@ -1,4 +1,4 @@
-const TICK_RATE = parseInt(process.env.TICK_RATE) || 1000; // Default to 1000 ms if not set
+const TICK_RATE = parseInt(process.env.TICK_RATE) || 1000;
 const HYSTERESIS = parseFloat(process.env.HYSTERESIS) || 0.0005;
 
 export function startMobilityEngine(db){
@@ -35,7 +35,7 @@ export function startMobilityEngine(db){
                     newX = destX;
                     newY = destY;
                     isMoving = false;
-                    console.log(`🏁 UE ${ue.imsi} arrivé à destination !`);
+                    console.log(`🏁 UE ${ue.imsi} arrived at destination !`);
                 } else {
                     const ratio = speed / distance;
                     newX = startX + dx * ratio;
@@ -43,7 +43,7 @@ export function startMobilityEngine(db){
                 }
 
                 // ======================
-                // Algo de handover
+                // Handover algorithm 
                 // ======================
 
                 let currentGnbDistance = Infinity;
@@ -70,7 +70,7 @@ export function startMobilityEngine(db){
 
                 if (closestGnb && String(closestGnb.gnbId) !== String(ue.current_gnb) && ue.handover_status !== 'pending') {
                     if (minDistance + HYSTERESIS < currentGnbDistance) {
-                        console.log(`📡 Handover flaggé pour ${ue.imsi} vers gNB ${closestGnb.gnbId}`);
+                        console.log(`[INFO] UE ${ue.imsi} is moving from gNB ${ue.current_gnb} to gNB ${closestGnb.gnbId}`);
                         updateStatus = 'pending';
                         updatedTargetGnb = closestGnb.gnbId;
                     }

@@ -1,22 +1,23 @@
 #!/bin/bash
-echo "Installation de curl..."
-sleep 0.5
+echo "[INFO] Starting the provisioning of UEs..."
+sleep 0.1
+echo "[INFO] Installing necessary packages..."
 apt-get update -y > /dev/null 2>&1
 apt-get install curl -y > /dev/null 2>&1
-echo "Installation de curl terminée."
+echo "[INFO] Installation completed."
 
-echo "Installation de mongodb..."
+echo "[INFO] Installing MongoDB..."
 curl -sL https://downloads.mongodb.com/compass/mongosh-2.2.5-linux-x64.tgz -o /tmp/mongosh.tgz
 tar -zxvf /tmp/mongosh.tgz -C /tmp/ > /dev/null 2>&1
 cp /tmp/mongosh-*-linux-x64/bin/mongosh /usr/local/bin/
-echo "Installation de mongodb terminée."
+echo "[INFO] MongoDB installation completed."
 
 nombre_ues="${NB_UES:-200}"
 NUM_GNBS=$(ls -1 /generated_gnbs/ | wc -l)
 
-echo "Nombre d'antennes gNB détectées : $NUM_GNBS"
+echo "[INFO] Number of detected gNB antennas: $NUM_GNBS"
 
-echo "Base de données prête. Résolution des antennes..."
+echo "[INFO] Database ready. Resolving antennas..."
 
 declare -A GNB_HOSTS
 for id in $(seq 1 $NUM_GNBS); do
@@ -31,22 +32,22 @@ for id in $(seq 1 $NUM_GNBS); do
     RESOLVED=$(getent hosts "$FQDN" | awk '{ print $1 }' | head -n 1)
 
     if [ -z "$RESOLVED" ]; then
-       echo "⏳ Attente du réseau pour $HOSTNAME (Tentative $((COUNT+1))/$MAX_RETRIES)..."
+       echo "[INFO] Waiting for the network for $HOSTNAME (Attempt $((COUNT+1))/$MAX_RETRIES)..."
        sleep 1
        COUNT=$((COUNT+1))
     fi
   done
 
   if [ -z "$RESOLVED" ]; then
-     echo "❌ DNS introuvable pour $HOSTNAME après $MAX_RETRIES secondes."
+     echo "[ERROR] DNS not found for $HOSTNAME after $MAX_RETRIES seconds."
      GNB_HOSTS[$id]=$FQDN
   else
-     echo "✅ Antenne $HOSTNAME joignable via : $FQDN (IP actuelle : $RESOLVED)"
+     echo "[INFO] Antenna $HOSTNAME reachable via: $FQDN (Current IP: $RESOLVED)"
      GNB_HOSTS[$id]=$FQDN
   fi
 done
 
-echo "Démarrage de la simulation..."
+echo "[INFO] Starting the simulation..."
 
 get_closest_gnb_id() {
   local imsi=$1
@@ -75,73 +76,62 @@ get_closest_gnb_id() {
   " | grep -Eo '[0-9]+' | tail -n 1
 }
 
-echo "Démarrage de la génération dynamique basée sur la localisation..."
+echo "[INFO] Starting dynamic generation based on location..."
 
 for i in $(seq 1 3 $nombre_ues); do
   SUFFIX=$(printf "%010d" $i)
-  SUFFIX2=$(printf "%010d" $((i+1)))
-  SUFFIX3=$(printf "%010d" $((i+2)))
   IMSI="imsi-20801$SUFFIX"
-  IMSI2="imsi-20801$SUFFIX2"
-  IMSI3="imsi-20801$SUFFIX3"
-  
   GNB_ID=$(get_closest_gnb_id "20801$SUFFIX")
-  GNB_ID2=$(get_closest_gnb_id "20801$SUFFIX2")
-  GNB_ID3=$(get_closest_gnb_id "20801$SUFFIX3")
-
-  echo "DEBUG -> IMSI: 20801$SUFFIX | GNB_ID calculé: '$GNB_ID'"
-  echo "DEBUG -> IMSI: 20801$SUFFIX2 | GNB_ID calculé: '$GNB_ID2'"
-  echo "DEBUG -> IMSI: 20801$SUFFIX3 | GNB_ID calculé: '$GNB_ID3'"
-  
-  # if [ -z "$GNB_ID" ]; then GNB_ID=1; fi
-  # if [ -z "$GNB_ID2" ]; then GNB_ID2=1; fi
-  # if [ -z "$GNB_ID3" ]; then GNB_ID3=1; fi
-
-  # --- MODIFICATION : on lit désormais GNB_HOSTS (hostname) au lieu de GNB_IPS (IP figée) ---
   GNB_TARGET=${GNB_HOSTS[$GNB_ID]}
-  GNB_TARGET2=${GNB_HOSTS[$GNB_ID2]}
-  GNB_TARGET3=${GNB_HOSTS[$GNB_ID3]}
 
   if [ -z "$GNB_TARGET" ]; then
-     echo "⚠️ AVERTISSEMENT: hostname vide pour l'UE $IMSI (GNB_ID lu: '$GNB_ID')"
+     echo "[WARN] Empty hostname for UE $IMSI (Read GNB_ID: '$GNB_ID')"
   fi
-  if [ -z "$GNB_TARGET2" ]; then
-     echo "⚠️ AVERTISSEMENT: hostname vide pour l'UE $IMSI2 (GNB_ID lu: '$GNB_ID2')"
-  fi
-  if [ -z "$GNB_TARGET3" ]; then
-     echo "⚠️ AVERTISSEMENT: hostname vide pour l'UE $IMSI3 (GNB_ID lu: '$GNB_ID3')"
-  fi
-
-  build_search_list() {
-    local target=$1
-    echo "$target"
-  }
-
-  SEARCH_LIST1=$(build_search_list "$GNB_TARGET")
-  SEARCH_LIST2=$(build_search_list "$GNB_TARGET2")
-  SEARCH_LIST3=$(build_search_list "$GNB_TARGET3")
   
-  sed -e "s/IMSI_PLACEHOLDER/$IMSI/g" -e "s/GNB_PLACEHOLDER/$SEARCH_LIST1/g" /ue_templates/ue-template.yaml > "/tmp/ue-${IMSI}.yaml"
-  sed -e "s/IMSI_PLACEHOLDER/$IMSI2/g" -e "s/GNB_PLACEHOLDER/$SEARCH_LIST2/g" /ue_templates/ue-template2.yaml > "/tmp/ue-${IMSI2}.yaml"
-  sed -e "s/IMSI_PLACEHOLDER/$IMSI3/g" -e "s/GNB_PLACEHOLDER/$SEARCH_LIST3/g" /ue_templates/ue-template3.yaml > "/tmp/ue-${IMSI3}.yaml"
-  
+  sed -e "s/IMSI_PLACEHOLDER/$IMSI/g" -e "s/GNB_PLACEHOLDER/$GNB_TARGET/g" /ue_templates/ue-template.yaml > "/tmp/ue-${IMSI}.yaml"
   /UERANSIM/nr-ue -c "/tmp/ue-${IMSI}.yaml" > "/tmp/logs-${IMSI}.txt" 2>&1 &
   sleep 0.15
-  /UERANSIM/nr-ue -c "/tmp/ue-${IMSI2}.yaml" > "/tmp/logs-${IMSI2}.txt" 2>&1 &
-  sleep 0.15
-  /UERANSIM/nr-ue -c "/tmp/ue-${IMSI3}.yaml" > "/tmp/logs-${IMSI3}.txt" 2>&1 &
-  sleep 0.1
+
+  if [ $((i+1)) -le $nombre_ues ]; then
+    SUFFIX2=$(printf "%010d" $((i+1)))
+    IMSI2="imsi-20801$SUFFIX2"
+    GNB_ID2=$(get_closest_gnb_id "20801$SUFFIX2")
+    GNB_TARGET2=${GNB_HOSTS[$GNB_ID2]}
+
+    if [ -z "$GNB_TARGET2" ]; then
+       echo "[WARN] Empty hostname for UE $IMSI2 (Read GNB_ID: '$GNB_ID2')"
+    fi
+    
+    sed -e "s/IMSI_PLACEHOLDER/$IMSI2/g" -e "s/GNB_PLACEHOLDER/$GNB_TARGET2/g" /ue_templates/ue-template2.yaml > "/tmp/ue-${IMSI2}.yaml"
+    /UERANSIM/nr-ue -c "/tmp/ue-${IMSI2}.yaml" > "/tmp/logs-${IMSI2}.txt" 2>&1 &
+    sleep 0.15
+  fi
+
+  if [ $((i+2)) -le $nombre_ues ]; then
+    SUFFIX3=$(printf "%010d" $((i+2)))
+    IMSI3="imsi-20801$SUFFIX3"
+    GNB_ID3=$(get_closest_gnb_id "20801$SUFFIX3")
+    GNB_TARGET3=${GNB_HOSTS[$GNB_ID3]}
+
+    if [ -z "$GNB_TARGET3" ]; then
+       echo "[WARN] Empty hostname for UE $IMSI3 (Read GNB_ID: '$GNB_ID3')"
+    fi
+    
+    sed -e "s/IMSI_PLACEHOLDER/$IMSI3/g" -e "s/GNB_PLACEHOLDER/$GNB_TARGET3/g" /ue_templates/ue-template3.yaml > "/tmp/ue-${IMSI3}.yaml"
+    /UERANSIM/nr-ue -c "/tmp/ue-${IMSI3}.yaml" > "/tmp/logs-${IMSI3}.txt" 2>&1 &
+    sleep 0.1
+  fi
   
   sleep 0.2
 done
 
-echo "Toutes les UEs ont été lancées et rattachées aux antennes gNB."
+echo "[INFO] All UEs have been launched and attached to the gNB antennas."
 
 sleep 2
 
 if [ "${LOADTEST_COUNT:-0}" -gt 0 ]; then
   dd if=/dev/zero of=/testing/1GB.bin bs=1M count=1000
-  echo "Lancement du test de charge sur $LOADTEST_COUNT UEs..."
+  echo "[INFO] Starting the load test on $LOADTEST_COUNT UEs..."
   bash /testing/start_load_test.sh
 fi
 

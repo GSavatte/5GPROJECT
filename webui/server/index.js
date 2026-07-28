@@ -139,25 +139,25 @@ co(function* () {
         await mongoose.connection.db.collection('gnbs').insertMany(cleanGnbs);
       }
 
-      console.log("Seding redeploy signal to start.sh...");
+      console.log("Sending redeploy signal to start.sh...");
 
       try {
         fs.writeFileSync('/shared_flags/redeploy.flag', 'go');
       } catch (err) {
-        console.error("❌ Erreur lors de la création du fichier de signalisation :", err);
-        return res.status(500).json({ error: "Erreur serveur lors de la création du fichier de signalisation" });
+        console.error("❌ Error while creating the redeploy signal file:", err);
+        return res.status(500).json({ error: "Server error while creating the redeploy signal file" });
       }
 
-      res.status(200).json({ message: "Base de données mise à jour. Redémarrage physique en cours..." });
+      res.status(200).json({ message: "Database updated. Physical restart in progress..." });
     } catch (error) {
-      console.error("❌ Erreur d'import :", error);
-      res.status(500).json({ error: "Erreur serveur" });
+      console.error("❌ Import error:", error);
+      res.status(500).json({ error: "Server error" });
     }
   });
 
   server.post('/api/set-destination', async (req, res) => {
     const { imsi, lat, lng } = req.body;
-    console.log(`📍 Ordre de déplacement reçu pour ${imsi} vers [${lat}, ${lng}]`);
+    console.log(`📍 Move order received for ${imsi} to [${lat}, ${lng}]`);
 
     try {
       const db = mongoose.connection.db;
@@ -176,8 +176,8 @@ co(function* () {
 
       return res.status(200).json({ success: true });
     } catch (error) {
-      console.error('Erreur API destination:', error);
-      return res.status(500).json({ error: 'Erreur serveur' });
+      console.error('Destination API error:', error);
+      return res.status(500).json({ error: 'Server error' });
     }
   });
 
@@ -187,8 +187,8 @@ co(function* () {
       const ues = await db.collection('subscribers').find({}).toArray();
       return res.status(200).json(ues);
     } catch (error) {
-      console.error('Erreur API ues-live:', error);
-      return res.status(500).json({ error: 'Erreur serveur' });
+      console.error('UES-live API error:', error);
+      return res.status(500).json({ error: 'Server error' });
     }
   })
 

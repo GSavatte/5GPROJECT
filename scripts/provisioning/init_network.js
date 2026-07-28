@@ -2,17 +2,17 @@ const nb_ues = parseInt(process.env.NB_UES);
 const nb_gnbs = parseInt(process.env.NB_GNBS);
 
 if (isNaN(nb_ues) || nb_ues <= 0 || isNaN(nb_gnbs) || nb_gnbs <= 0) {
-    console.error("❌ Erreur : Les variables NB_UES et NB_GNBS doivent être des nombres valides.");
+    console.error("[ERROR] : NB_UES and NB_GNBS environment variables must be positive integers.");
     process.exit(1);
 }
 
-console.log(`\nNettoyage de la base de données...`);
+console.log(`\n[INFO] Cleaning up the database...`);
 db.subscribers.deleteMany({});
 db.gnbs.deleteMany({});
 
 let uePositions = [];
 
-console.log(`\nGénération de ${nb_ues} UEs...`);
+console.log(`\n[INFO] Generating ${nb_ues} UEs...`);
 for (let i = 1; i <= nb_ues; i += 3) {
     const imsiSuffix = i.toString().padStart(10, "0");
     const imsiSuffix2 = (i+1).toString().padStart(10, "0");
@@ -78,7 +78,7 @@ for (let i = 1; i <= nb_ues; i += 3) {
     }
 }
 
-console.log(`\nPlacement aléatoire de ${nb_gnbs} gNBs...`);
+console.log(`\n[INFO] Random placement of ${nb_gnbs} gNBs...`);
 for (let c = 0; c < nb_gnbs; c++) {
     const randomUe = uePositions[Math.floor(Math.random() * uePositions.length)];
 
@@ -94,4 +94,4 @@ for (let c = 0; c < nb_gnbs; c++) {
     });
 }
 
-console.log(`\n✅ Initialisation terminée avec succès. Lance optimize_gnb_placement.js quand tu veux pour optimiser le placement des gNB via K-means.`);
+console.log(`\n[INFO] Initialization completed successfully. Run optimize_gnb_placement.js whenever you want to optimize the placement of gNBs via K-means.`);

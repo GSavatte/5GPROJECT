@@ -5,7 +5,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 NUM_GNBS=$1
 
-echo "Génération des fichiers de configuration pour $NUM_GNBS antennes gNB..."
+echo "[INFO] Generating configuration files for $NUM_GNBS gNB antennas..."
 
 COMPOSE_FILE="$PROJECT_ROOT/compose-files/docker-compose.gnbs.yaml"
 CONFIG_DIR="$PROJECT_ROOT/config-files/gnb/generated"
@@ -56,28 +56,4 @@ echo "networks:" >> "$COMPOSE_FILE"
 echo "  open5gs:" >> "$COMPOSE_FILE"
 echo "    external: true" >> "$COMPOSE_FILE"
 
-echo "Fichiers de configuration pour $NUM_GNBS antennes gNB générés avec succès."
-
-# echo "Insertion des gNBs dans la base de données..."
-
-# for i in $(seq 1 $NUM_GNBS); do
-#     GNB_NAME="gnb${i}"
-#     GNB_ID=$i
-
-#     SEED1=$((10#$(date +%N) + RANDOM))
-#     SEED2=$((10#$(date +%N) + RANDOM))
-
-#     POSX=$(awk -v base=48.117883 -v seed="$SEED1" 'BEGIN {srand(seed); printf "%.6f", base + ((rand() - 0.5) * 0.01)}')
-#     POSY=$(awk -v base=-1.640991 -v seed="$SEED2" 'BEGIN {srand(seed); printf "%.6f", base + ((rand() - 0.5) * 0.02)}')
-
-#     echo "Ajout de $GNB_NAME à la position ($POSX, $POSY)..."
-
-#     sudo docker exec -i db mongosh open5gs --eval "
-#     db.gnbs.insertOne({
-#         \"gnbId\": \"$GNB_ID\",
-#         \"name\": \"$GNB_NAME\",
-#         \"location\": { \"lat\": $POSX, \"lng\": $POSY },
-#         \"supportedSlices\": [{ \"sst\": 1, \"sd\": \"000001\" }, { \"sst\": 2, \"sd\": \"000001\" }, { \"sst\": 3, \"sd\": \"000001\" }],
-#         \"schema_version\": 1
-#     })"
-# done
+echo "[INFO] Configuration files for $NUM_GNBS gNB antennas generated successfully."

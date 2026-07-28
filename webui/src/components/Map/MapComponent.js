@@ -62,7 +62,7 @@ class MapComponent extends Component {
         this.setState({ liveUes: data }); 
       }
     } catch (error) {
-      console.error("Erreur de récupération des positions :", error);
+      console.error("Error fetching UE positions :", error);
     }
   };
 
@@ -87,7 +87,7 @@ class MapComponent extends Component {
         exportDate: new Date().toISOString(),
         totalUEs: ues.length,
         totalGNBs: gnbs.length,
-        description: "Snapshot des positions du réseau 5G"
+        description: "Snapshot of the 5G network positions"
       },
       gnbs: gnbs,
       subscribers: ues
@@ -141,17 +141,17 @@ class MapComponent extends Component {
               }
             } catch (err) {
               this.setState({ isDeploying: false });
-              console.error("Erreur lors de la vérification du statut :", err);
+              console.error("Error while checking status :", err);
             }
           }, 2000);
         } else {
           this.setState({ isDeploying: false });
           const errorData = await response.json();
-          alert(`❌ Erreur côté serveur : ${errorData.error}`);
+          alert(`❌ Error from server : ${errorData.error}`);
         }
 
       } catch (error) {
-        alert("❌ Erreur : Le fichier JSON est invalide ou corrompu.");
+        alert("❌ Error: The JSON file is invalid or corrupted.");
         console.error(error);
       }
       
@@ -177,10 +177,10 @@ class MapComponent extends Component {
       if (response.ok) {
         this.setState({ selectedUeImsi: null });
       } else {
-        console.error("Erreur du serveur lors de l'enregistrement de la destination");
+        console.error("Error from server while setting destination");
       }
     } catch (error) {
-      console.error("Erreur d'envoi des coordonnées :", error);
+      console.error("Error sending coordinates:", error);
     }
   };
 
@@ -206,7 +206,6 @@ class MapComponent extends Component {
           style={{ display: 'none' }} 
         />
 
-        {/* NOUVEAU : Bandeau d'instructions pour la mobilité */}
         <div style={{ 
           padding: '12px', 
           backgroundColor: selectedUeImsi ? '#e6f3ff' : '#f8f9fa', 
@@ -216,8 +215,8 @@ class MapComponent extends Component {
           transition: 'background-color 0.3s'
         }}>
           {selectedUeImsi 
-            ? <span>📍 UE <strong>{selectedUeImsi}</strong> sélectionné. Cliquez n'importe où sur la carte pour définir sa destination.</span> 
-            : <span>🖱️ Cliquez sur un marqueur UE pour le déplacer.</span>}
+            ? <span>📍 UE <strong>{selectedUeImsi}</strong> selected. Click anywhere on the map to set its destination.</span> 
+            : <span>🖱️ Click on a UE marker to move it.</span>}
         </div>
 
         <div style={{ position: 'absolute', top: '80px', right: '20px', zIndex: 1000, display: 'flex', gap: '10px' }}>
@@ -235,7 +234,7 @@ class MapComponent extends Component {
               transition: 'all 0.3s ease'
             }}
           >
-            {isDeploying ? '⏳ Déploiement en cours...' : 'Importer (JSON)'}
+            {isDeploying ? '⏳ Deployment in progress...' : 'Import (JSON)'}
           </button>
 
           <button
@@ -247,11 +246,10 @@ class MapComponent extends Component {
               boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
             }}
           >
-            Exporter le réseau
+            Export the network
           </button>
         </div>
         
-        {/* NOUVEAU : Ajout de onClick={this.handleMapClick} */}
         <Map 
           center={centerPosition} 
           zoom={15} 
@@ -289,15 +287,14 @@ class MapComponent extends Component {
               ueColor = GNB_COLORS[colorIndex];
             }
 
-            // On ajoute une petite indication visuelle si l'UE est sélectionné
             const isSelected = ue.imsi === selectedUeImsi;
 
             return (
               <Marker 
                 key={`ue-${ue._id || index}`}
                 position={[lat, lng]}
-                icon={colorIcon(isSelected ? '#000000' : ueColor)} // Devient noir si sélectionné
-                onClick={() => this.setState({ selectedUeImsi: ue.imsi })} // NOUVEAU : Sélection au clic
+                icon={colorIcon(isSelected ? '#000000' : ueColor)}
+                onClick={() => this.setState({ selectedUeImsi: ue.imsi })}
               >
                 <Popup>
                   <div style={{ color: '#333', minWidth: '150px' }}>
@@ -307,11 +304,11 @@ class MapComponent extends Component {
                     
                     {attachedGnb ? (
                       <small style={{ color: '#555' }}>
-                        Connecté à : <strong>{String(attachedGnb.name || attachedGnb.gnbId || 'gNB inconnu')}</strong>
+                        Connected to: <strong>{String(attachedGnb.name || attachedGnb.gnbId || 'gNB inconnu')}</strong>
                       </small>
                     ) : (
                       <small style={{ color: '#d9534f' }}>
-                        ⚠️ Erreur de récupération du gNB le plus proche
+                        ⚠️ Error retrieving the closest gNB
                       </small>
                     )}
                   </div>

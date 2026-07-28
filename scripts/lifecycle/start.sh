@@ -1,20 +1,20 @@
 #!/bin/bash
 
 # ==============================================================================
-# PARSING DES ARGUMENTS
+# ARGUMENT PARSING
 # ==============================================================================
-# Chaque option, si fournie, court-circuite le prompt interactif correspondant.
-# Sans aucun flag, le script se comporte exactement comme avant (tout interactif).
+# Each option, if provided, short-circuits the corresponding interactive prompt.
+# Without any flags, the script behaves exactly as before (fully interactive)..
 #
-# Options disponibles :
-#   --rebuild                Reconstruit toutes les images sans cache
-#   --import                 Importe la config depuis la WebUI (saute le prompt)
-#   --no-import               Génère via seeder plutôt que d'importer (saute le prompt)
-#   --nb-gnbs=N               Nombre de gNBs à générer (mode --no-import uniquement)
-#   --nb-ues=N                Nombre d'UEs à générer (mode --no-import uniquement)
-#   --webui / --no-webui      Lance ou non la WebUI (saute le prompt post-génération)
-#   --monitoring / --no-monitoring   Lance ou non le monitoring (saute le prompt)
-#   --loadtest-count=N        Nombre d'UEs pour le test de charge (0 = aucun, saute le prompt)
+# Available options:
+#   --rebuild                Rebuild all Docker images without using cache (skips the prompt)
+#   --import                 Import configuration from the WebUI (skips the prompt)
+#   --no-import               Generate via seeder rather than importing (skips the prompt)
+#   --nb-gnbs=N               Number of gNBs to generate (only in --no-import mode)
+#   --nb-ues=N                Number of UEs to generate (only in --no-import mode)
+#   --webui / --no-webui      Launch or not the WebUI (skips the prompt post-generation)
+#   --monitoring / --no-monitoring   Launch or not the monitoring (skips the prompt)
+#   --loadtest-count=N        Number of UEs for the load test (0 = none, skips the prompt)
 # ==============================================================================
 
 REBUILD=false
@@ -32,49 +32,45 @@ for arg in "$@"; do
         --no-monitoring) monitor="n" ;;
         --loadtest-count=*) LOADTEST_COUNT="${arg#*=}" ;;
         *)
-            echo "⚠️ Option inconnue ignorée : $arg"
+            echo "[WARN] Unknown option ignored : $arg"
             ;;
     esac
 done
 
 if [[ "$REBUILD" == "true" ]]; then
-    echo "⚠️ Attention : Reconstruction complète des images sans utiliser le cache..."
+    echo "[INFO] Complete rebuild requested. All Docker images will be rebuilt without cache."
 
-    echo "-> Build du cœur de réseau et WebUI..."
+    echo "-> Build of the 5G Core Network and WebUI..."
     docker compose -f compose-files/docker-compose.yml --env-file=.env build --no-cache
 
-    echo "-> Build des antennes (gNBs)..."
+    echo "-> Build of the gNBs..."
     docker compose -f compose-files/docker-compose.gnbs.yaml build --no-cache
 
-    echo "-> Build du monitoring..."
+    echo "-> Build of the monitoring..."
     docker compose -f compose-files/docker-compose.monitoring.yaml build --no-cache
 
-    echo "-> Build des outils de test de charge..."
+    echo "-> Build of the load testing tools..."
     docker compose -f compose-files/docker-compose.loadtest.yaml build --no-cache
 
-    echo "✅ Reconstruction terminée avec succès."
+    echo "[INFO] All Docker images rebuilt successfully."
     echo "--------------------------------------------------------"
 fi
 
-echo "Démarrage du cœur de réseau..."
+echo "[INFO] Starting the 5G Core Network and its components..."
 docker compose -f compose-files/docker-compose.yml --env-file=.env up -d amf ausf bsf db nrf nssf pcf smf1 smf2 smf3 upf1 upf2 upf3 udm udr
 sleep 2
-# sudo bash utils/scripts/clear.sh
-
-
-
 
 if [ -z "$IMPORT_MODE" ]; then
-    read -p "Voulez-vous importer une configuration existante depuis la WebUI ? (y/n) " IMPORT_MODE
+    read -p "Do you want to import an existing configuration from the WebUI? (y/n) " IMPORT_MODE
 fi
 
 
 if [[ "$IMPORT_MODE" == "y" || "$IMPORT_MODE" == "Y" ]]; then
-    echo "Lancement de la WebUI..."
+    echo "[INFO] Launching the WebUI..."
     docker compose -f compose-files/docker-compose.yml --env-file=.env up -d webui
     sleep 2
-    echo "WebUI lancée. Accédez-y via http://localhost:9999 pour importer votre configuration."
-    echo "⏳ En attente de l'insertion des données dans MongoDB..."
+    echo "[INFO] WebUI launched. Access it via http://localhost:9999 to import your configuration."
+    echo "[INFO] Waiting for data insertion into MongoDB..."
 
     NB_GNBS=0
     while [ -z "$NB_GNBS" ] || [ "$NB_GNBS" -eq 0 ]; do
@@ -82,17 +78,17 @@ if [[ "$IMPORT_MODE" == "y" || "$IMPORT_MODE" == "Y" ]]; then
         NB_GNBS=$(docker exec -i db mongosh open5gs --quiet --eval "db.gnbs.countDocuments({})" | grep -o '[0-9]\+')
     done
 
-    echo "✅ Données importées avec succès depuis la WebUI. Nombre d'antennes gNB détectées : $NB_GNBS"
+    echo "[INFO] Data imported successfully from the WebUI. Number of gNBs detected: $NB_GNBS"
 
 else
     if [ -z "$NB_UES" ]; then
-        read -p "Combien d'UEs voulez-vous générer ? " NB_UES
+        read -p "How many UEs do you want to generate? " NB_UES
     fi
     if [ -z "$NB_GNBS" ]; then
-        read -p "Combien de gNBs voulez-vous générer ? " NB_GNBS
+        read -p "How many gNBs do you want to generate? " NB_GNBS
     fi
 
-    echo "Démarrage du seeder avec $NB_UES UEs et $NB_GNBS gNBs..."
+    echo "[INFO] Starting the seeder with $NB_UES UEs and $NB_GNBS gNBs..."
     docker compose -f compose-files/docker-compose.yml --env-file=.env run --rm -e NB_UES="$NB_UES" -e NB_GNBS="$NB_GNBS" db-seeder
     sleep 2
 fi
@@ -104,42 +100,42 @@ fi
 
 sudo bash scripts/provisioning/start_gnbs.sh "$NB_GNBS"
 
-echo "Démarrage des antennes (gNBs)..."
+echo "[INFO] Starting the gNB antennas..."
 
 docker compose -f compose-files/docker-compose.gnbs.yaml up -d
 sleep 5
 
-echo "Réseau 5G déployé avec succès."
+echo "[INFO] 5G network deployed successfully."
 
 if [[ "$IMPORT_MODE" != "y" && "$IMPORT_MODE" != "Y" ]]; then
     if [ -z "$launch" ]; then
-        read -p "Voulez-vous lancer l'interface web permettant de gérer les subscribers, accéder à la carte du réseau etc... ? (y/n) " launch
+        read -p "Do you want to launch the web interface that allows you to manage subscribers, access the network map, and more? (y/n) " launch
     fi
     if [[ "$launch" == "y" || "$launch" == "Y" ]]; then
-        echo "Lancement de l'interface web..."
+        echo "[INFO] Starting the web interface..."
         docker compose --env-file=.env -f compose-files/docker-compose.yml up -d webui
         sleep 2
-        echo "Interface web lancée. Accédez-y via http://localhost:9999"
+        echo "[INFO] Web interface launched. Access it via http://localhost:9999"
     fi
 fi
 
 if [ -z "$monitor" ]; then
-    read -p "Voulez-vous lancer le monitoring du réseau 5G ? (y/n) " monitor
+    read -p "Do you want to start 5G network monitoring? (y/n) " monitor
 fi
 if [[ "$monitor" == "y" || "$monitor" == "Y" ]]; then
-    echo "Lancement du monitoring..."
+    echo "[INFO] Starting monitoring..."
     docker compose --env-file=.env -f compose-files/docker-compose.monitoring.yaml up -d
     sleep 2
-    echo "Monitoring lancé. Accédez-y via http://localhost:3000 (login: admin, password: admin)"
+    echo "[INFO] Monitoring started. Access it via http://localhost:3000 (login: admin, password: admin)"
 fi
 
 
 if [ -z "$LOADTEST_COUNT" ]; then
-    read -p "Combien d'UEs voulez-vous impliquer dans le test de charge ? (Entrez 0 pour aucun) : " LOADTEST_COUNT
+    read -p "How many UEs do you want to include in the load test? (Enter 0 for none): " LOADTEST_COUNT
 fi
 
 if ! [[ "$LOADTEST_COUNT" =~ ^[0-9]+$ ]]; then
-    echo "Erreur : Veuillez entrer un nombre valide."
+    echo "[ERROR] Please enter a valid number."
     exit 1
 fi
 
@@ -156,23 +152,23 @@ REDEPLOY_SCRIPT="./scripts/lifecycle/re-deploy.sh"
 
 rm -f "$FLAG_FILE"
 
-echo "Démarrage du contrôleur SDN (mobilité)..."
+echo "[INFO] Starting the SDN mobility controller..."
 nohup bash scripts/mobility/sdn-controller.sh > logs/sdn-controller.log 2>&1 &
 echo $! > shared_flags/sdn-controller.pid
-echo "✅ Contrôleur SDN lancé en arrière-plan (PID: $(cat shared_flags/sdn-controller.pid)). Logs : logs/sdn-controller.log"
+echo "[INFO] SDN controller started in the background (PID: $(cat shared_flags/sdn-controller.pid)). Logs: logs/sdn-controller.log"
 
 echo "========================================================"
-echo "✅ Réseau 5G déployé !"
-echo "Le contrôleur SDN est actif. En attente de mises à jour depuis la WebUI..."
-echo "Laissez ce terminal ouvert pour maintenir le simulateur. (Ctrl+C pour quitter puis executez stop.sh pour un arrêt propre et complet)"
+echo "[INFO] 5G network deployed!"
+echo "[INFO] The SDN controller is active. Waiting for updates from the WebUI..."
+echo "[INFO] Leave this terminal open to keep the simulator running. (Ctrl+C to quit, then run stop.sh for a clean and complete shutdown)"
 echo "========================================================"
 
 while true; do
     if [[ -f "$FLAG_FILE" ]]; then
-        echo "Signal de redéploiement détecté. Exécution du script de redéploiement..."
+        echo "[INFO] Redeployment signal detected. Executing the redeployment script..."
         rm -f "$FLAG_FILE"
         bash "$REDEPLOY_SCRIPT"
-        echo "Redéploiement terminé. Reprise de l'attente de signal..."
+        echo "[INFO] Redeployment completed. Resuming signal wait..."
     fi
     sleep 2
 done

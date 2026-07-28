@@ -3,7 +3,7 @@ const MAX_ITER = 100;
 const nb_gnbs = db.gnbs.countDocuments();
 
 if (nb_gnbs === 0) {
-    console.error("❌ Erreur : aucun gNB trouvé en base. Lance d'abord init_network.js.");
+    console.error("[ERROR] No gNB found in the database. Please run init_network.js first.");
     quit(1);
 }
 
@@ -11,15 +11,14 @@ const uePositions = db.subscribers.find({}, { position: 1 }).toArray()
     .map(ue => ({ latitude: parseFloat(ue.position.latitude), longitude: parseFloat(ue.position.longitude) }));
 
 if (uePositions.length === 0) {
-    console.error("❌ Erreur : aucune UE trouvée en base. Lance d'abord init_network.js.");
+    console.error("[ERROR] No UEs found in the database. Please run init_network.js first.");
     quit(1);
 }
 
-console.log(`\nOptimisation K-means du placement de ${nb_gnbs} gNB sur ${uePositions.length} UE...`);
+console.log(`\n[INFO] K-means optimization of the placement of ${nb_gnbs} gNBs on ${uePositions.length} UEs...`);
 
 const getSqDistance = (p1, p2) => Math.pow(p1.latitude - p2.latitude, 2) + Math.pow(p1.longitude - p2.longitude, 2);
 
-// --- ÉTAPE 0 : centroïdes initiaux aléatoires ---
 let centroids = [];
 for (let i = 0; i < nb_gnbs; i++) {
     const randomUe = uePositions[Math.floor(Math.random() * uePositions.length)];
@@ -72,15 +71,15 @@ while (!converged && iterations < MAX_ITER) {
 
     if (!moved) {
         converged = true;
-        console.log(`✅ Convergence atteinte en ${iterations} itérations.`);
+        console.log(`[INFO] Convergence reached in ${iterations} iterations.`);
     }
 }
 
 if (!converged) {
-    console.log(`⚠️ Pas de convergence après ${MAX_ITER} itérations, on garde le dernier résultat obtenu.`);
+    console.log(`[WARN] No convergence after ${MAX_ITER} iterations, keeping the last obtained result.`);
 }
 
-console.log(`\nMise à jour des positions des gNB en base...`);
+console.log(`\n[INFO] Updating the positions of the gNBs in the database...`);
 for (let c = 0; c < nb_gnbs; c++) {
     const gnbId = `${c + 1}`;
     db.gnbs.updateOne(
@@ -90,8 +89,7 @@ for (let c = 0; c < nb_gnbs; c++) {
     console.log(`  gnb${(c + 1).toString().padStart(2, '0')} -> lat: ${centroids[c].latitude.toFixed(6)}, lng: ${centroids[c].longitude.toFixed(6)}`);
 }
 
-// --- Flag des UE dont le gNB le plus proche a changé, pour déclencher un handover ---
-console.log(`\nRecalcul du gNB le plus proche pour chaque UE...`);
+console.log(`\n[INFO] Recalculating the closest gNB for each UE...`);
 const allGnbs = db.gnbs.find({}).toArray();
 const subscribers = db.subscribers.find({}).toArray();
 
@@ -126,5 +124,5 @@ if (bulkOps.length > 0) {
     db.subscribers.bulkWrite(bulkOps);
 }
 
-console.log(`\n✅ Optimisation terminée. ${flagged} UE flaguée(s) pour handover vers leur nouveau gNB le plus proche.`);
-console.log(`   Assure-toi que mobility_controller.sh tourne pour que les reconnexions s'exécutent.`);
+console.log(`\n✅ Optimization completed. ${flagged} UE(s) flagged for handover to their new closest gNB.`);
+console.log(`   Make sure that mobility_controller.sh is running for the reconnections to execute.`);
