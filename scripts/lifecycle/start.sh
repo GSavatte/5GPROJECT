@@ -107,6 +107,11 @@ REDEPLOY_SCRIPT="./scripts/lifecycle/re-deploy.sh"
 
 rm -f "$FLAG_FILE"
 
+echo "Démarrage du contrôleur SDN (mobilité)..."
+nohup bash scripts/mobility/sdn-controller.sh > logs/sdn-controller.log 2>&1 &
+echo $! > shared_flags/sdn-controller.pid
+echo "✅ Contrôleur SDN lancé en arrière-plan (PID: $(cat shared_flags/sdn-controller.pid)). Logs : logs/sdn-controller.log"
+
 echo "========================================================"
 echo "✅ Réseau 5G déployé !"
 echo "Le contrôleur SDN est actif. En attente de mises à jour depuis la WebUI..."

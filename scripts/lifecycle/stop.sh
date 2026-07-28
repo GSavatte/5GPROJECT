@@ -11,5 +11,10 @@ docker compose --env-file=.env -f compose-files/docker-compose.monitoring.yaml d
 sudo bash scripts/lifecycle/clear.sh
 docker compose --env-file=.env -f compose-files/docker-compose.yml down --remove-orphans
 
+if [ -f shared_flags/sdn-controller.pid ]; then
+    kill "$(cat shared_flags/sdn-controller.pid)" 2>/dev/null
+    rm -f shared_flags/sdn-controller.pid
+fi
+
 echo "Tous les conteneurs associés au réseau ont été stoppés."
 
